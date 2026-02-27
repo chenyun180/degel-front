@@ -1,0 +1,20 @@
+export default {
+  'menu.welcome': '欢迎',
+  'menu.more-blocks': '更多区块',
+  'menu.home': '首页',
+  'menu.login': '登录',
+  'menu.register': '注册',
+  'menu.register-result': '注册结果',
+  'menu.account': '个人页',
+  'menu.account.center': '个人中心',
+  'menu.account.settings': '个人设置',
+  'menu.account.trigger': '触发报错',
+  'menu.account.logout': '退出登录',
+
+  'menu.首页': '首页',
+  'menu.系统管理': '系统管理',
+  'menu.系统管理.用户管理': '用户管理',
+  'menu.系统管理.角色管理': '角色管理',
+  'menu.系统管理.菜单管理': '菜单管理',
+  'menu.系统管理.店铺管理': '店铺管理',
+};
