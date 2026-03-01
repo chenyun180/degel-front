@@ -8,5 +8,13 @@ export default {
       target: 'http://localhost:9999',
       changeOrigin: true,
     },
+    '/product/': {
+      target: 'http://localhost:9999',
+      changeOrigin: true,
+    },
+    '/file/': {
+      target: 'http://localhost:9999',
+      changeOrigin: true,
+    },
   },
 };

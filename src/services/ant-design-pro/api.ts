@@ -138,7 +138,7 @@ export async function getShopList(params: any) {
 }
 
 export async function createShop(data: API.SysShop) {
-  return request<API.R<void>>('/admin/shop', { method: 'POST', data });
+  return request<API.R<{ username: string; password: string }>>('/admin/shop', { method: 'POST', data });
 }
 
 export async function updateShop(data: API.SysShop) {
@@ -149,5 +149,186 @@ export async function toggleShopStatus(id: number, status: number) {
   return request<API.R<void>>('/admin/shop/status', {
     method: 'PUT',
     params: { id, status },
+  });
+}
+
+export async function getShopById(id: number) {
+  return request<API.R<API.SysShop>>(`/admin/shop/${id}`, { method: 'GET' });
+}
+
+// ===== Shop-side Staff API =====
+export async function getStaffList(params: any) {
+  return request<API.R<API.PageResult<API.SysUser>>>('/admin/user/list', {
+    method: 'GET',
+    params,
+  });
+}
+
+export async function createStaff(data: any) {
+  return request<API.R<void>>('/admin/user', { method: 'POST', data });
+}
+
+export async function updateStaff(data: any) {
+  return request<API.R<void>>('/admin/user', { method: 'PUT', data });
+}
+
+export async function deleteStaff(id: number) {
+  return request<API.R<void>>(`/admin/user/${id}`, { method: 'DELETE' });
+}
+
+export async function resetStaffPassword(id: number) {
+  return request<API.R<{ password: string }>>(`/admin/user/resetPwd/${id}`, { method: 'PUT' });
+}
+
+// ===== Shop-side Role API =====
+export async function getShopRoleList(params: any) {
+  return request<API.R<API.PageResult<API.SysRole>>>('/admin/role/list', {
+    method: 'GET',
+    params,
+  });
+}
+
+export async function getShopRoles(shopId: number) {
+  return request<API.R<API.SysRole[]>>('/admin/role/all', {
+    method: 'GET',
+    params: { shopId },
+  });
+}
+
+export async function createShopRole(data: API.SysRole) {
+  return request<API.R<void>>('/admin/role', { method: 'POST', data });
+}
+
+export async function updateShopRole(data: API.SysRole) {
+  return request<API.R<void>>('/admin/role', { method: 'PUT', data });
+}
+
+export async function deleteShopRole(id: number) {
+  return request<API.R<void>>(`/admin/role/${id}`, { method: 'DELETE' });
+}
+
+// ===== Shop Product API =====
+export async function getSpuList(params: any) {
+  return request<API.R<API.PageResult<API.ProductSpu>>>('/product/spu/list', {
+    method: 'GET',
+    params,
+  });
+}
+
+export async function getSpuById(id: number) {
+  return request<API.R<API.ProductSpu>>(`/product/spu/${id}`, { method: 'GET' });
+}
+
+export async function createSpu(data: Partial<API.ProductSpu>) {
+  return request<API.R<void>>('/product/spu', { method: 'POST', data });
+}
+
+export async function updateSpu(data: Partial<API.ProductSpu>) {
+  return request<API.R<void>>('/product/spu', { method: 'PUT', data });
+}
+
+export async function deleteSpu(id: number) {
+  return request<API.R<void>>(`/product/spu/${id}`, { method: 'DELETE' });
+}
+
+export async function submitSpuAudit(id: number) {
+  return request<API.R<void>>(`/product/spu/submit/${id}`, { method: 'PUT' });
+}
+
+export async function getSpuDetail(id: number) {
+  return request<API.R<API.SpuDetailVo>>(`/product/spu/detail/${id}`, { method: 'GET' });
+}
+
+export async function updateSkuStock(data: { skuId: number; stock: number }) {
+  return request<API.R<void>>('/product/sku/stock', { method: 'PUT', data });
+}
+
+export async function getCategoryTree() {
+  return request<API.R<API.ProductCategory[]>>('/product/category/tree', { method: 'GET' });
+}
+
+export async function toggleSpuStatus(id: number, status: number) {
+  return request<API.R<void>>('/product/spu/toggle-status', {
+    method: 'PUT',
+    params: { id, status },
+  });
+}
+
+export async function getMyShop() {
+  return request<API.R<API.SysShop>>('/admin/shop/mine', { method: 'GET' });
+}
+
+export async function updateMyShop(data: Partial<API.SysShop>) {
+  return request<API.R<void>>('/admin/shop/mine', { method: 'PUT', data });
+}
+
+export async function getOrderList(params: any) {
+  return request<API.R<API.PageResult<API.OrderInfo>>>('/order/list', { method: 'GET', params });
+}
+
+export async function getOrderDetail(id: number) {
+  return request<API.R<API.OrderDetailVo>>(`/order/${id}`, { method: 'GET' });
+}
+
+export async function deliverOrder(data: {
+  orderId: number;
+  expressCompany: string;
+  expressNo: string;
+}) {
+  return request<API.R<void>>('/order/deliver', { method: 'PUT', data });
+}
+
+export async function exportOrders(params: any) {
+  return request('/order/export', {
+    method: 'GET',
+    params,
+    responseType: 'blob',
+  });
+}
+
+export async function getAfterSaleList(params: any) {
+  return request<API.R<API.PageResult<API.AfterSale>>>('/order/after-sale/list', {
+    method: 'GET',
+    params,
+  });
+}
+
+export async function handleAfterSale(data: {
+  afterSaleId: number;
+  action: 'agree' | 'reject';
+  merchantRemark?: string;
+}) {
+  return request<API.R<void>>('/order/after-sale/handle', { method: 'PUT', data });
+}
+
+export async function confirmAfterSaleReceive(data: { afterSaleId: number }) {
+  return request<API.R<void>>('/order/after-sale/confirm-receive', { method: 'PUT', data });
+}
+
+export async function getDashboardOverview() {
+  return request<API.R<API.DashboardOverview>>('/product/dashboard/today-overview', {
+    method: 'GET',
+  });
+}
+
+export async function getStockWarningList(params: any) {
+  return request<API.R<API.PageResult<API.StockWarningVo>>>('/product/dashboard/stock-warning', {
+    method: 'GET',
+    params,
+  });
+}
+
+export async function getPendingCounts() {
+  return request<API.R<API.PendingCounts>>('/product/dashboard/pending-counts', { method: 'GET' });
+}
+
+export async function getHotSaleStats(params: { period: 'week' | 'month' }) {
+  return request<API.R<API.HotSaleVo[]>>('/product/stats/hot-sale', { method: 'GET', params });
+}
+
+export async function getVisitorRankStats(params: { period: 'week' | 'month' }) {
+  return request<API.R<API.VisitorRankVo[]>>('/product/stats/visitor-rank', {
+    method: 'GET',
+    params,
   });
 }

@@ -16,6 +16,9 @@ const Settings: ProLayoutProps & {
   logo: 'https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg',
   iconfontUrl: '',
   token: {},
+  menu: {
+    locale: false,
+  },
 };
 
 export default Settings;

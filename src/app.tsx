@@ -47,7 +47,20 @@ export async function getInitialState(): Promise<{
   };
 }
 
+function routersToMenuData(routers: API.RouterItem[]): any[] {
+  return routers
+    .filter((r) => !r.hidden)
+    .map((r) => ({
+      name: r.meta?.title || r.name,
+      path: r.path,
+      icon: r.meta?.icon,
+      children: r.children ? routersToMenuData(r.children) : undefined,
+    }));
+}
+
 export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) => {
+  const routers: API.RouterItem[] = initialState?.currentUser?.routers || [];
+
   return {
     avatarProps: {
       src: initialState?.currentUser?.user?.avatar || undefined,
@@ -65,6 +78,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
         history.push(loginPath);
       }
     },
+    menuDataRender: routers.length > 0 ? () => routersToMenuData(routers) : undefined,
     menuHeaderRender: undefined,
     childrenRender: (children) => {
       return <>{children}</>;

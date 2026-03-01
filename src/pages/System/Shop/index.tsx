@@ -1,13 +1,15 @@
 import { PlusOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns, ProTable } from '@ant-design/pro-components';
-import { Button, Form, Input, DatePicker, message, Modal, Select, Switch } from 'antd';
+import { Button, Descriptions, Form, Input, DatePicker, message, Modal, Select, Switch } from 'antd';
 import React, { useRef, useState } from 'react';
+import dayjs from 'dayjs';
 import { getShopList, createShop, updateShop, toggleShopStatus } from '@/services/ant-design-pro/api';
 
 const ShopPage: React.FC = () => {
   const actionRef = useRef<ActionType>();
   const [modalOpen, setModalOpen] = useState(false);
   const [editingShop, setEditingShop] = useState<API.SysShop | null>(null);
+  const [accountInfo, setAccountInfo] = useState<{ username: string; password: string } | null>(null);
   const [form] = Form.useForm();
 
   const columns: ProColumns<API.SysShop>[] = [
@@ -32,7 +34,14 @@ const ShopPage: React.FC = () => {
     {
       title: '操作', valueType: 'option',
       render: (_, record) => [
-        <a key="edit" onClick={() => { setEditingShop(record); form.setFieldsValue(record); setModalOpen(true); }}>编辑</a>,
+        <a key="edit" onClick={() => {
+          setEditingShop(record);
+          form.setFieldsValue({
+            ...record,
+            expireTime: record.expireTime ? dayjs(record.expireTime) : undefined,
+          });
+          setModalOpen(true);
+        }}>编辑</a>,
       ],
     },
   ];
@@ -45,18 +54,38 @@ const ShopPage: React.FC = () => {
     if (editingShop?.id) {
       await updateShop({ ...values, id: editingShop.id });
       message.success('修改成功');
+      setModalOpen(false);
+      form.resetFields();
+      setEditingShop(null);
+      actionRef.current?.reload();
     } else {
-      await createShop(values);
-      message.success('创建成功');
+      const res = await createShop(values);
+      setModalOpen(false);
+      form.resetFields();
+      setEditingShop(null);
+      actionRef.current?.reload();
+      if (res.code === 200 && res.data) {
+        setAccountInfo(res.data);
+      }
     }
-    setModalOpen(false);
-    form.resetFields();
-    setEditingShop(null);
-    actionRef.current?.reload();
   };
 
   return (
     <>
+      <Modal
+        title="店铺创建成功"
+        open={!!accountInfo}
+        onOk={() => setAccountInfo(null)}
+        onCancel={() => setAccountInfo(null)}
+        cancelButtonProps={{ style: { display: 'none' } }}
+        okText="我已记录，关闭"
+      >
+        <p style={{ marginBottom: 16, color: '#fa8c16' }}>请妥善保管以下登录信息，密码仅展示一次：</p>
+        <Descriptions bordered column={1}>
+          <Descriptions.Item label="登录账号">{accountInfo?.username}</Descriptions.Item>
+          <Descriptions.Item label="初始密码">{accountInfo?.password}</Descriptions.Item>
+        </Descriptions>
+      </Modal>
       <ProTable<API.SysShop>
         headerTitle="店铺管理"
         actionRef={actionRef}
