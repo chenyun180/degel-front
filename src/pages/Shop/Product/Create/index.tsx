@@ -15,12 +15,21 @@ import {
   TreeSelect,
 } from 'antd';
 import React, { useEffect, useState } from 'react';
+import ImageGalleryUpload from '@/components/FileUpload/ImageGalleryUpload';
+import ImageUpload from '@/components/FileUpload/ImageUpload';
+import RichTextEditor from '@/components/RichTextEditor';
 import {
   createSpu,
   getCategoryTree,
   getSpuDetail,
   updateSpu,
 } from '@/services/ant-design-pro/api';
+import {
+  joinImageUrls,
+  parseSkuAttributes,
+  serializeSkuAttributes,
+  splitImageUrls,
+} from './helpers';
 
 const buildTreeData = (list: API.ProductCategory[]): any[] =>
   list.map((item) => ({
@@ -28,6 +37,22 @@ const buildTreeData = (list: API.ProductCategory[]): any[] =>
     value: item.id,
     children: item.children ? buildTreeData(item.children) : [],
   }));
+
+const defaultSkuAttribute = (): API.SkuAttributePair[] => [
+  { key: '颜色', value: '' },
+  { key: '尺码', value: '' },
+];
+
+const createEmptySku = () => ({
+  attributes: defaultSkuAttribute(),
+  price: undefined,
+  originalPrice: undefined,
+  costPrice: undefined,
+  stock: undefined,
+  stockWarning: 0,
+  weight: undefined,
+  image: '',
+});
 
 const ShopProductCreatePage: React.FC = () => {
   const { initialState } = useModel('@@initialState');
@@ -43,13 +68,19 @@ const ShopProductCreatePage: React.FC = () => {
   useEffect(() => {
     getCategoryTree()
       .then((res) => {
-        if (res.code === 200) setCategoryTree(buildTreeData(res.data || []));
+        if (res.code === 200) {
+          setCategoryTree(buildTreeData(res.data || []));
+        }
       })
       .catch(() => {});
   }, []);
 
   useEffect(() => {
-    if (!editId) return;
+    if (!editId) {
+      form.setFieldsValue({ skuList: [createEmptySku()], images: [] });
+      return;
+    }
+
     setLoading(true);
     getSpuDetail(Number(editId))
       .then((res) => {
@@ -61,12 +92,13 @@ const ShopProductCreatePage: React.FC = () => {
             categoryId: spu.categoryId,
             keyword: spu.keyword,
             mainImage: spu.mainImage,
-            images: spu.images,
+            images: splitImageUrls(spu.images),
             description: spu.description,
             detailContent: spu.detailContent,
             skuList: skuList.map((sku) => ({
               id: sku.id,
-              specData: sku.specData,
+              skuCode: sku.skuCode,
+              attributes: parseSkuAttributes(sku.specData),
               price: sku.price,
               originalPrice: sku.originalPrice,
               costPrice: sku.costPrice,
@@ -79,17 +111,40 @@ const ShopProductCreatePage: React.FC = () => {
         }
       })
       .finally(() => setLoading(false));
-  }, [editId]);
+  }, [editId, form]);
 
   const handleSave = async () => {
     const values = await form.validateFields();
+    const normalizedSkuList = (values.skuList || []).map((sku: any) => {
+      const specData = serializeSkuAttributes(sku.attributes || []);
+      if (specData === '{}') {
+        throw new Error('empty-spec');
+      }
+
+      return {
+        id: sku.id,
+        skuCode: sku.skuCode,
+        specData,
+        price: sku.price,
+        originalPrice: sku.originalPrice,
+        costPrice: sku.costPrice,
+        stock: sku.stock,
+        stockWarning: sku.stockWarning,
+        weight: sku.weight,
+        image: sku.image,
+      };
+    });
+
     setSaving(true);
     try {
       const payload = {
         ...values,
         shopId,
         auditStatus: 0,
+        images: joinImageUrls(values.images),
+        skuList: normalizedSkuList,
       };
+
       if (editId) {
         await updateSpu({ ...payload, id: Number(editId) });
         message.success('修改成功');
@@ -98,6 +153,12 @@ const ShopProductCreatePage: React.FC = () => {
         message.success('创建成功');
       }
       history.push('/shop-workspace/shop-product-dir/shop-product-list');
+    } catch (error) {
+      if (error instanceof Error && error.message === 'empty-spec') {
+        message.error('每个 SKU 至少需要填写一组完整规格');
+        return;
+      }
+      throw error;
     } finally {
       setSaving(false);
     }
@@ -110,7 +171,11 @@ const ShopProductCreatePage: React.FC = () => {
           <Card title="基本信息" style={{ marginBottom: 16 }}>
             <Row gutter={16}>
               <Col span={12}>
-                <Form.Item name="name" label="商品名称" rules={[{ required: true }]}>
+                <Form.Item
+                  name="name"
+                  label="商品名称"
+                  rules={[{ required: true, message: '请输入商品名称' }]}
+                >
                   <Input placeholder="请输入商品名称" />
                 </Form.Item>
               </Col>
@@ -120,7 +185,11 @@ const ShopProductCreatePage: React.FC = () => {
                 </Form.Item>
               </Col>
               <Col span={12}>
-                <Form.Item name="categoryId" label="商品分类" rules={[{ required: true }]}>
+                <Form.Item
+                  name="categoryId"
+                  label="商品分类"
+                  rules={[{ required: true, message: '请选择商品分类' }]}
+                >
                   <TreeSelect
                     treeData={categoryTree}
                     placeholder="请选择分类"
@@ -140,13 +209,17 @@ const ShopProductCreatePage: React.FC = () => {
           <Card title="图片信息" style={{ marginBottom: 16 }}>
             <Row gutter={16}>
               <Col span={12}>
-                <Form.Item name="mainImage" label="主图URL">
-                  <Input placeholder="请输入主图URL" />
+                <Form.Item
+                  name="mainImage"
+                  label="主图"
+                  rules={[{ required: true, message: '请上传主图' }]}
+                >
+                  <ImageUpload buttonText="上传主图" />
                 </Form.Item>
               </Col>
               <Col span={12}>
-                <Form.Item name="images" label="轮播图URL(多个用逗号分隔)">
-                  <Input placeholder="http://a.jpg,http://b.jpg" />
+                <Form.Item name="images" label="轮播图">
+                  <ImageGalleryUpload />
                 </Form.Item>
               </Col>
             </Row>
@@ -157,7 +230,7 @@ const ShopProductCreatePage: React.FC = () => {
               <Input.TextArea rows={3} placeholder="请输入商品简要描述" />
             </Form.Item>
             <Form.Item name="detailContent" label="详细内容">
-              <Input.TextArea rows={6} placeholder="请输入商品详细内容(后续可替换为富文本)" />
+              <RichTextEditor placeholder="请输入商品详情，支持上传图片到 MinIO" />
             </Form.Item>
           </Card>
 
@@ -178,14 +251,52 @@ const ShopProductCreatePage: React.FC = () => {
                       }
                     >
                       <Row gutter={12}>
-                        <Col span={8}>
-                          <Form.Item
-                            {...restField}
-                            name={[name, 'specData']}
-                            label="规格(JSON)"
-                            rules={[{ required: true }]}
-                          >
-                            <Input placeholder='{"颜色":"红","尺码":"XL"}' />
+                        <Col span={24}>
+                          <Form.Item label="规格属性" required>
+                            <Form.List name={[name, 'attributes']}>
+                              {(attributeFields, attributeOps) => (
+                                <>
+                                  {attributeFields.map((attributeField, attributeIndex) => (
+                                    <Space
+                                      key={attributeField.key}
+                                      align="baseline"
+                                      style={{ display: 'flex', marginBottom: 8 }}
+                                    >
+                                      <Form.Item
+                                        {...attributeField}
+                                        name={[attributeField.name, 'key']}
+                                        rules={[{ required: true, message: '请输入规格名' }]}
+                                      >
+                                        <Input
+                                          placeholder={attributeIndex === 0 ? '如：颜色' : '规格名'}
+                                        />
+                                      </Form.Item>
+                                      <Form.Item
+                                        {...attributeField}
+                                        name={[attributeField.name, 'value']}
+                                        rules={[{ required: true, message: '请输入规格值' }]}
+                                      >
+                                        <Input
+                                          placeholder={attributeIndex === 0 ? '如：红色' : '规格值'}
+                                        />
+                                      </Form.Item>
+                                      {attributeFields.length > 1 ? (
+                                        <MinusCircleOutlined
+                                          onClick={() => attributeOps.remove(attributeField.name)}
+                                        />
+                                      ) : null}
+                                    </Space>
+                                  ))}
+                                  <Button
+                                    type="dashed"
+                                    onClick={() => attributeOps.add({ key: '', value: '' })}
+                                    icon={<PlusOutlined />}
+                                  >
+                                    添加规格属性
+                                  </Button>
+                                </>
+                              )}
+                            </Form.List>
                           </Form.Item>
                         </Col>
                         <Col span={4}>
@@ -193,7 +304,7 @@ const ShopProductCreatePage: React.FC = () => {
                             {...restField}
                             name={[name, 'price']}
                             label="销售价"
-                            rules={[{ required: true }]}
+                            rules={[{ required: true, message: '请输入销售价' }]}
                           >
                             <InputNumber min={0} precision={2} style={{ width: '100%' }} />
                           </Form.Item>
@@ -213,7 +324,7 @@ const ShopProductCreatePage: React.FC = () => {
                             {...restField}
                             name={[name, 'stock']}
                             label="库存"
-                            rules={[{ required: true }]}
+                            rules={[{ required: true, message: '请输入库存' }]}
                           >
                             <InputNumber min={0} precision={0} style={{ width: '100%' }} />
                           </Form.Item>
@@ -228,15 +339,25 @@ const ShopProductCreatePage: React.FC = () => {
                             <InputNumber min={0} precision={0} style={{ width: '100%' }} />
                           </Form.Item>
                         </Col>
+                        <Col span={4}>
+                          <Form.Item {...restField} name={[name, 'skuCode']} label="SKU编码">
+                            <Input placeholder="可选" />
+                          </Form.Item>
+                        </Col>
                         <Col span={8}>
-                          <Form.Item {...restField} name={[name, 'image']} label="SKU图片URL">
-                            <Input placeholder="请输入图片URL" />
+                          <Form.Item {...restField} name={[name, 'image']} label="SKU图片">
+                            <ImageUpload buttonText="上传SKU图" />
                           </Form.Item>
                         </Col>
                       </Row>
                     </Card>
                   ))}
-                  <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                  <Button
+                    type="dashed"
+                    onClick={() => add(createEmptySku())}
+                    block
+                    icon={<PlusOutlined />}
+                  >
                     添加 SKU
                   </Button>
                 </>

@@ -24,6 +24,12 @@ export default [
     ],
   },
   {
+    path: '/platform-product',
+    routes: [
+      { path: '/platform-product/category', component: './Product/Category' },
+    ],
+  },
+  {
     path: '/shop-workspace',
     routes: [
       { path: '/shop-workspace/shop-dashboard', component: './Shop/Dashboard' },

@@ -142,6 +142,11 @@ declare namespace API {
     createTime?: string;
   };
 
+  type SkuAttributePair = {
+    key?: string;
+    value?: string;
+  };
+
   type SpuDetailVo = {
     spu: ProductSpu;
     skuList: ProductSku[];

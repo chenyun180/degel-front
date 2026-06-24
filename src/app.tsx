@@ -1,10 +1,41 @@
 import type { Settings as LayoutSettings } from '@ant-design/pro-components';
 import type { RequestConfig, RunTimeLayoutConfig } from '@umijs/max';
 import { history } from '@umijs/max';
+import React from 'react';
+import {
+  AppstoreOutlined,
+  AuditOutlined,
+  BarChartOutlined,
+  DashboardOutlined,
+  HomeOutlined,
+  MenuOutlined,
+  OrderedListOutlined,
+  SettingOutlined,
+  ShopOutlined,
+  ShoppingOutlined,
+  TeamOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
 import { AvatarDropdown, AvatarName } from '@/components';
+import PageTabs from '@/components/PageTabs';
 import { currentUser as queryCurrentUser } from '@/services/ant-design-pro/api';
 import defaultSettings from '../config/defaultSettings';
 import { errorConfig } from './requestErrorConfig';
+
+const iconMap: Record<string, React.ReactNode> = {
+  HomeOutlined: <HomeOutlined />,
+  SettingOutlined: <SettingOutlined />,
+  UserOutlined: <UserOutlined />,
+  TeamOutlined: <TeamOutlined />,
+  MenuOutlined: <MenuOutlined />,
+  ShopOutlined: <ShopOutlined />,
+  ShoppingOutlined: <ShoppingOutlined />,
+  AuditOutlined: <AuditOutlined />,
+  AppstoreOutlined: <AppstoreOutlined />,
+  DashboardOutlined: <DashboardOutlined />,
+  OrderedListOutlined: <OrderedListOutlined />,
+  BarChartOutlined: <BarChartOutlined />,
+};
 
 const loginPath = '/user/login';
 
@@ -53,7 +84,7 @@ function routersToMenuData(routers: API.RouterItem[]): any[] {
     .map((r) => ({
       name: r.meta?.title || r.name,
       path: r.path,
-      icon: r.meta?.icon,
+      icon: r.meta?.icon ? iconMap[r.meta.icon] : undefined,
       children: r.children ? routersToMenuData(r.children) : undefined,
     }));
 }
@@ -81,7 +112,12 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
     menuDataRender: routers.length > 0 ? () => routersToMenuData(routers) : undefined,
     menuHeaderRender: undefined,
     childrenRender: (children) => {
-      return <>{children}</>;
+      return (
+        <>
+          <PageTabs routers={routers} currentPath={history.location.pathname} />
+          {children}
+        </>
+      );
     },
     ...initialState?.settings,
   };

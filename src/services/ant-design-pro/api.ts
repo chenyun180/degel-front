@@ -209,7 +209,7 @@ export async function deleteShopRole(id: number) {
 
 // ===== Shop Product API =====
 export async function getSpuList(params: any) {
-  return request<API.R<API.PageResult<API.ProductSpu>>>('/product/spu/list', {
+  return request<API.R<API.PageResult<API.SpuListVo>>>('/product/spu/list', {
     method: 'GET',
     params,
   });
@@ -236,21 +236,43 @@ export async function submitSpuAudit(id: number) {
 }
 
 export async function getSpuDetail(id: number) {
-  return request<API.R<API.SpuDetailVo>>(`/product/spu/detail/${id}`, { method: 'GET' });
+  return request<API.R<API.SpuDetailVo>>(`/product/spu/${id}`, { method: 'GET' });
 }
 
 export async function updateSkuStock(data: { skuId: number; stock: number }) {
   return request<API.R<void>>('/product/sku/stock', { method: 'PUT', data });
 }
 
+export async function uploadFile(file: File, bucket: 'public' | 'private' = 'public') {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('bucket', bucket);
+
+  return request<API.R<string>>('/file/upload', {
+    method: 'POST',
+    data: formData,
+  });
+}
+
 export async function getCategoryTree() {
   return request<API.R<API.ProductCategory[]>>('/product/category/tree', { method: 'GET' });
 }
 
-export async function toggleSpuStatus(id: number, status: number) {
-  return request<API.R<void>>('/product/spu/toggle-status', {
+export async function createCategory(data: API.ProductCategory) {
+  return request<API.R<void>>('/product/category', { method: 'POST', data });
+}
+
+export async function updateCategory(data: API.ProductCategory) {
+  return request<API.R<void>>('/product/category', { method: 'PUT', data });
+}
+
+export async function deleteCategory(id: number) {
+  return request<API.R<void>>(`/product/category/${id}`, { method: 'DELETE' });
+}
+
+export async function toggleSpuStatus(id: number) {
+  return request<API.R<void>>(`/product/spu/toggle-status/${id}`, {
     method: 'PUT',
-    params: { id, status },
   });
 }
 

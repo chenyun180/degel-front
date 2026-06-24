@@ -17,6 +17,15 @@ const auditStatusMap: Record<number, { text: string; color: string }> = {
   3: { text: '已驳回', color: 'error' },
 };
 
+const formatCurrency = (value: unknown) => {
+  if (value === undefined || value === null || value === '') {
+    return '-';
+  }
+
+  const amount = Number(value);
+  return Number.isFinite(amount) ? `¥${amount.toFixed(2)}` : '-';
+};
+
 const ShopProductListPage: React.FC = () => {
   const { initialState } = useModel('@@initialState');
   const shopId = initialState?.currentUser?.user?.shopId as number;
@@ -39,7 +48,7 @@ const ShopProductListPage: React.FC = () => {
       dataIndex: 'minPrice',
       search: false,
       width: 90,
-      render: (v) => (v !== undefined && v !== null ? `¥${(v as number).toFixed(2)}` : '-'),
+      render: (v) => formatCurrency(v),
     },
     { title: '总库存', dataIndex: 'totalStock', search: false, width: 80 },
     { title: '销量', dataIndex: 'saleCount', search: false, width: 80 },
@@ -65,7 +74,7 @@ const ShopProductListPage: React.FC = () => {
           unCheckedChildren="下架"
           disabled={record.auditStatus !== 2}
           onChange={async (checked) => {
-            await toggleSpuStatus(record.id, checked ? 1 : 0);
+            await toggleSpuStatus(record.id);
             message.success(checked ? '已上架' : '已下架');
             actionRef.current?.reload();
           }}
