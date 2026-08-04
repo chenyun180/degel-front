@@ -28,13 +28,21 @@ yarn-error.log
 .vscode
 .history
 
-# lock files
-yarn.lock
-package-lock.json
-pnpm-lock.yaml
-
 # legacy / temp
 /src/utils/request-temp.js
 functions/
 screenshot
 .firebase
+
+# env files (可能含密钥)
+.env.local
+.env.*.local
+
+# build / type 缓存
+.cache
+.turbo
+*.tsbuildinfo
+.eslintcache
+
+# Claude / AI agent 本地缓存
+.claude/
