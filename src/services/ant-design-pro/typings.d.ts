@@ -73,6 +73,8 @@ declare namespace API {
     id?: number;
     roleName?: string;
     roleKey?: string;
+    roleType?: string;
+    shopId?: number;
     sort?: number;
     status?: number;
     remark?: string;
@@ -166,6 +168,12 @@ declare namespace API {
     minPrice: number;
     totalStock: number;
     createTime: string;
+  };
+
+  type AuditParams = {
+    spuId: number;
+    passed: boolean;
+    rejectReason?: string;
   };
 
   type ProductCategory = {
@@ -274,5 +282,34 @@ declare namespace API {
     viewCount: number;
     orderCount: number;
     conversionRate: number;
+  };
+
+  type ShopGmvRank = {
+    shopId: number;
+    gmv: number;
+    orderCount: number;
+  };
+
+  type ProductGmvRank = {
+    spuId: number;
+    spuName: string;
+    shopId: number;
+    quantity: number;
+    amount: number;
+  };
+
+  type PlatformDashboardOverview = {
+    totalGmv: number;
+    todayGmv: number;
+    todayOrderCount: number;
+    pendingShipCount: number;
+    shopTop5: ShopGmvRank[];
+    productTop5: ProductGmvRank[];
+  };
+
+  type DailyGmv = {
+    date: string;
+    gmv: number;
+    orderCount: number;
   };
 }

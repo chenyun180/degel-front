@@ -6,6 +6,11 @@ import { createStyles } from 'antd-style';
 import React from 'react';
 import { flushSync } from 'react-dom';
 import { login, setToken } from '@/services/ant-design-pro/api';
+import {
+  collectAllowedPaths,
+  firstNavigablePath,
+  isAllowedRedirect,
+} from '@/utils/routeAccess';
 import Settings from '../../../../config/defaultSettings';
 
 const useStyles = createStyles(({ token }) => ({
@@ -32,6 +37,7 @@ const Login: React.FC = () => {
         setInitialState((s) => ({ ...s, currentUser: userInfo }));
       });
     }
+    return userInfo;
   };
 
   const handleSubmit = async (values: API.LoginParams) => {
@@ -40,9 +46,19 @@ const Login: React.FC = () => {
       if (result.access_token) {
         setToken(result.access_token);
         message.success('登录成功！');
-        await fetchUserInfo();
+        const userInfo = await fetchUserInfo();
+        // 跳转优先级：合法的 redirect > 菜单首项 > 角色兜底 > /welcome
         const urlParams = new URL(window.location.href).searchParams;
-        window.location.href = urlParams.get('redirect') || '/';
+        const redirect = urlParams.get('redirect') || '';
+        const allowed = collectAllowedPaths(userInfo?.routers);
+        const target = isAllowedRedirect(redirect, allowed)
+          ? redirect
+          : firstNavigablePath(userInfo?.routers) ||
+            (userInfo?.roles?.includes('admin')
+              ? '/platform/dashboard'
+              : '/shop-workspace/shop-dashboard') ||
+            '/welcome';
+        window.location.href = target;
         return;
       }
       message.error(result.error_description || '登录失败');

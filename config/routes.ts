@@ -11,6 +11,13 @@ export default [
     component: './Welcome',
   },
   {
+    path: '/platform',
+    access: 'canAdmin',
+    routes: [
+      { path: '/platform/dashboard', name: '数据看板', component: './Platform/Dashboard' },
+    ],
+  },
+  {
     path: '/system',
     name: '系统管理',
     icon: 'setting',
@@ -25,12 +32,19 @@ export default [
   },
   {
     path: '/platform-product',
+    access: 'canAdmin',
     routes: [
       { path: '/platform-product/category', component: './Product/Category' },
+      {
+        path: '/platform-product/audit',
+        name: '商品审核',
+        component: './Product/Audit',
+      },
     ],
   },
   {
     path: '/shop-workspace',
+    access: 'canShop',
     routes: [
       { path: '/shop-workspace/shop-dashboard', component: './Shop/Dashboard' },
       {
@@ -78,8 +92,6 @@ export default [
         path: '/shop-workspace/shop-setting',
         routes: [
           { path: '/shop-workspace/shop-setting/shop-info', component: './Shop/Info' },
-          { path: '/shop-workspace/shop-setting/shop-staff', component: './Shop/Staff' },
-          { path: '/shop-workspace/shop-setting/shop-role', component: './Shop/Role' },
         ],
       },
     ],

@@ -16,5 +16,9 @@ export default {
       target: 'http://localhost:9999',
       changeOrigin: true,
     },
+    '/order/': {
+      target: 'http://localhost:9999',
+      changeOrigin: true,
+    },
   },
 };

@@ -46,3 +46,7 @@ screenshot
 
 # Claude / AI agent 本地缓存
 .claude/
+
+# playwright
+playwright-report/
+test-results/

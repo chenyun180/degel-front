@@ -156,57 +156,6 @@ export async function getShopById(id: number) {
   return request<API.R<API.SysShop>>(`/admin/shop/${id}`, { method: 'GET' });
 }
 
-// ===== Shop-side Staff API =====
-export async function getStaffList(params: any) {
-  return request<API.R<API.PageResult<API.SysUser>>>('/admin/user/list', {
-    method: 'GET',
-    params,
-  });
-}
-
-export async function createStaff(data: any) {
-  return request<API.R<void>>('/admin/user', { method: 'POST', data });
-}
-
-export async function updateStaff(data: any) {
-  return request<API.R<void>>('/admin/user', { method: 'PUT', data });
-}
-
-export async function deleteStaff(id: number) {
-  return request<API.R<void>>(`/admin/user/${id}`, { method: 'DELETE' });
-}
-
-export async function resetStaffPassword(id: number) {
-  return request<API.R<{ password: string }>>(`/admin/user/resetPwd/${id}`, { method: 'PUT' });
-}
-
-// ===== Shop-side Role API =====
-export async function getShopRoleList(params: any) {
-  return request<API.R<API.PageResult<API.SysRole>>>('/admin/role/list', {
-    method: 'GET',
-    params,
-  });
-}
-
-export async function getShopRoles(shopId: number) {
-  return request<API.R<API.SysRole[]>>('/admin/role/all', {
-    method: 'GET',
-    params: { shopId },
-  });
-}
-
-export async function createShopRole(data: API.SysRole) {
-  return request<API.R<void>>('/admin/role', { method: 'POST', data });
-}
-
-export async function updateShopRole(data: API.SysRole) {
-  return request<API.R<void>>('/admin/role', { method: 'PUT', data });
-}
-
-export async function deleteShopRole(id: number) {
-  return request<API.R<void>>(`/admin/role/${id}`, { method: 'DELETE' });
-}
-
 // ===== Shop Product API =====
 export async function getSpuList(params: any) {
   return request<API.R<API.PageResult<API.SpuListVo>>>('/product/spu/list', {
@@ -233,6 +182,11 @@ export async function deleteSpu(id: number) {
 
 export async function submitSpuAudit(id: number) {
   return request<API.R<void>>(`/product/spu/submit/${id}`, { method: 'PUT' });
+}
+
+// 平台端：审核商品（通过/驳回）
+export async function auditSpu(data: API.AuditParams) {
+  return request<API.R<void>>('/product/spu/audit', { method: 'PUT', data });
 }
 
 export async function getSpuDetail(id: number) {
@@ -350,6 +304,21 @@ export async function getHotSaleStats(params: { period: 'week' | 'month' }) {
 
 export async function getVisitorRankStats(params: { period: 'week' | 'month' }) {
   return request<API.R<API.VisitorRankVo[]>>('/product/stats/visitor-rank', {
+    method: 'GET',
+    params,
+  });
+}
+
+// ===== Platform Dashboard API（平台工作台，仅平台管理员） =====
+export async function getPlatformDashboardOverview() {
+  return request<API.R<API.PlatformDashboardOverview>>(
+    '/order/platform/dashboard/overview',
+    { method: 'GET' },
+  );
+}
+
+export async function getPlatformDashboardTrend(params: { days: number }) {
+  return request<API.R<API.DailyGmv[]>>('/order/platform/dashboard/trend', {
     method: 'GET',
     params,
   });

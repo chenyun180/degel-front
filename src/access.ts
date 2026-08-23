@@ -5,6 +5,7 @@ export default function access(initialState: { currentUser?: API.CurrentUser } |
 
   return {
     canAdmin: roles.includes('admin'),
+    canShop: roles.includes('shop'),
     hasPermission: (perm: string) => permissions.includes(perm),
   };
 }

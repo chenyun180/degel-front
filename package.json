@@ -27,6 +27,7 @@
     "start:pre": "cross-env UMI_ENV=pre MOCK=none max dev",
     "start:test": "cross-env UMI_ENV=test MOCK=none max dev",
     "test": "jest",
+    "test:e2e": "playwright test",
     "test:coverage": "npm run jest -- --coverage",
     "test:update": "npm run jest -- -u",
     "tsc": "tsc --noEmit"
@@ -43,6 +44,7 @@
     "antd-style": "^4.1.0",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.19",
+    "echarts": "^6.1.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
   },
@@ -51,6 +53,7 @@
     "@biomejs/biome": "^2.1.1",
     "@commitlint/cli": "^20.1.0",
     "@commitlint/config-conventional": "^20.0.0",
+    "@playwright/test": "^1.62.1",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.3.0",
     "@types/express": "^5.0.3",
