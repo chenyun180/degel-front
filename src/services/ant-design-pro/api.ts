@@ -184,6 +184,11 @@ export async function submitSpuAudit(id: number) {
   return request<API.R<void>>(`/product/spu/submit/${id}`, { method: 'PUT' });
 }
 
+// 店铺端：批量提交审核
+export async function submitSpuAuditBatch(ids: number[]) {
+  return request<API.R<number>>('/product/spu/submitBatch', { method: 'PUT', data: ids });
+}
+
 // 平台端：审核商品（通过/驳回）
 export async function auditSpu(data: API.AuditParams) {
   return request<API.R<void>>('/product/spu/audit', { method: 'PUT', data });
@@ -321,5 +326,66 @@ export async function getPlatformDashboardTrend(params: { days: number }) {
   return request<API.R<API.DailyGmv[]>>('/order/platform/dashboard/trend', {
     method: 'GET',
     params,
+  });
+}
+
+// ===================== 优惠券（三期） =====================
+
+/** 平台端建券（funderType 1 平台 / 3 分摊；分摊需 shopId+platformAmount+shopAmount） */
+export async function createPlatformCoupon(data: API.CouponCreateParams) {
+  return request<API.R<API.CouponItem>>('/marketing/platform/coupon', { method: 'POST', data });
+}
+
+/** 平台审核店铺券 */
+export async function auditShopCoupon(data: { couponId: string; passed: boolean; rejectReason?: string }) {
+  return request<API.R<null>>('/marketing/platform/coupon/audit', { method: 'PUT', data });
+}
+
+/** 平台券列表（全部券型；auditStatus 过滤审核 Tab） */
+export async function getPlatformCoupons(params: {
+  current?: number;
+  size?: number;
+  name?: string;
+  status?: number;
+  auditStatus?: number;
+}) {
+  return request<API.R<API.PageResult<API.CouponItem>>>('/marketing/platform/coupon/list', {
+    method: 'GET',
+    params,
+  });
+}
+
+/** 平台停发券（平台券/分摊券/已通过店铺券） */
+export async function stopPlatformCoupon(couponId: string) {
+  return request<API.R<null>>(`/marketing/platform/coupon/stop/${couponId}`, { method: 'PUT' });
+}
+
+/** 店铺端建券（提交后待平台审核） */
+export async function createShopCoupon(data: API.CouponCreateParams) {
+  return request<API.R<API.CouponItem>>('/marketing/shop/coupon', { method: 'POST', data });
+}
+
+/** 本店券列表 */
+export async function getShopCoupons(params: {
+  current?: number;
+  size?: number;
+  name?: string;
+  status?: number;
+}) {
+  return request<API.R<API.PageResult<API.CouponItem>>>('/marketing/shop/coupon/list', {
+    method: 'GET',
+    params,
+  });
+}
+
+/** 店铺停发本店券 */
+export async function stopShopCoupon(couponId: string) {
+  return request<API.R<null>>(`/marketing/shop/coupon/stop/${couponId}`, { method: 'PUT' });
+}
+
+/** 本月店铺补贴（degel-order 统计端点） */
+export async function getShopSubsidySummary() {
+  return request<API.R<{ monthShopSubsidy: number }>>('/order/shop/dashboard/subsidy-summary', {
+    method: 'GET',
   });
 }

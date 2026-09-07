@@ -1,3 +1,4 @@
+import { fileUrl } from '@/utils/fileUrl';
 import { ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons';
 import { ProColumns, ProTable } from '@ant-design/pro-components';
 import { Image, Radio } from 'antd';
@@ -21,7 +22,7 @@ const ShopStatsHotPage: React.FC = () => {
       search: false,
       width: 70,
       render: (_, record) =>
-        record.mainImage ? <Image src={record.mainImage} width={40} height={40} /> : '-',
+        record.mainImage ? <Image src={fileUrl(record.mainImage)} width={40} height={40} /> : '-',
     },
     { title: '商品名称', dataIndex: 'spuName', search: false },
     { title: '销量', dataIndex: 'saleCount', search: false, width: 80 },

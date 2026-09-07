@@ -1,3 +1,4 @@
+import { fileUrl } from '@/utils/fileUrl';
 import { ActionType, ProColumns, ProTable } from '@ant-design/pro-components';
 import { useModel } from '@umijs/max';
 import {
@@ -203,7 +204,7 @@ const ShopOrderListPage: React.FC = () => {
                   dataIndex: 'spuName',
                   render: (v, record) => (
                     <Space>
-                      {record.skuImage && <Image src={record.skuImage} width={40} height={40} />}
+                      {record.skuImage && <Image src={fileUrl(record.skuImage)} width={40} height={40} />}
                       <span>{v as string}</span>
                     </Space>
                   ),

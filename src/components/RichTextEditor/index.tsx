@@ -4,6 +4,7 @@ import type { IDomEditor, IEditorConfig, IToolbarConfig } from '@wangeditor/edit
 import { message } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import { uploadFile } from '@/services/ant-design-pro/api';
+import { fileUrl } from '@/utils/fileUrl';
 
 type RichTextEditorProps = {
   value?: string;
@@ -42,7 +43,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
             try {
               const res = await uploadFile(file, 'public');
               if (res.code === 200 && res.data) {
-                insertFn(res.data, file.name, res.data);
+                // 存 HTML 里的 src 用相对路径（经网关），不落 host
+                insertFn(fileUrl(res.data), file.name, fileUrl(res.data));
                 return;
               }
               message.error(res.msg || '图片上传失败');

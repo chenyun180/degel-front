@@ -1,12 +1,15 @@
+import { fileUrl } from '@/utils/fileUrl';
 import { PlusOutlined } from '@ant-design/icons';
 import { ActionType, ProColumns, ProTable } from '@ant-design/pro-components';
 import { history, useModel } from '@umijs/max';
 import { Button, Image, message, Popconfirm, Switch, Tag } from 'antd';
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   deleteSpu,
+  getCategoryTree,
   getSpuList,
   submitSpuAudit,
+  submitSpuAuditBatch,
   toggleSpuStatus,
 } from '@/services/ant-design-pro/api';
 
@@ -30,6 +33,31 @@ const ShopProductListPage: React.FC = () => {
   const { initialState } = useModel('@@initialState');
   const shopId = initialState?.currentUser?.user?.shopId as number;
   const actionRef = useRef<ActionType>();
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [categoryOptions, setCategoryOptions] = useState<{ label: string; value: number }[]>([]);
+
+  useEffect(() => {
+    getCategoryTree().then((res) => {
+      if (res.code !== 200) {
+        return;
+      }
+      // 大类 = 根类目的直接子类（男装/女装）；若根无子类则用根本身
+      const tree = res.data || [];
+      const roots = tree.flatMap((root: API.ProductCategory) => root.children || [root]);
+      setCategoryOptions(
+        roots.map((c: API.ProductCategory) => ({ label: c.name || '', value: c.id! })),
+      );
+    });
+  }, []);
+
+  const handleBatchSubmit = async () => {
+    const res = await submitSpuAuditBatch(selectedRowKeys as number[]);
+    if (res.code === 200) {
+      message.success(`已批量提交 ${res.data} 个商品进入审核`);
+      setSelectedRowKeys([]);
+      actionRef.current?.reload();
+    }
+  };
 
   const columns: ProColumns<API.SpuListVo>[] = [
     { title: 'ID', dataIndex: 'id', width: 60, search: false },
@@ -39,9 +67,16 @@ const ShopProductListPage: React.FC = () => {
       search: false,
       width: 80,
       render: (_, record) =>
-        record.mainImage ? <Image src={record.mainImage} width={50} height={50} /> : '-',
+        record.mainImage ? <Image src={fileUrl(record.mainImage)} width={50} height={50} /> : '-',
     },
     { title: '商品名称', dataIndex: 'name' },
+    {
+      title: '大类',
+      dataIndex: 'categoryId',
+      valueType: 'select',
+      hideInTable: true,
+      fieldProps: { options: categoryOptions, allowClear: true, placeholder: '请选择大类' },
+    },
     { title: '副标题', dataIndex: 'subtitle', search: false, ellipsis: true },
     {
       title: '最低价',
@@ -139,7 +174,29 @@ const ShopProductListPage: React.FC = () => {
       actionRef={actionRef}
       rowKey="id"
       columns={columns}
+      rowSelection={{
+        selectedRowKeys,
+        onChange: setSelectedRowKeys,
+      }}
+      tableAlertOptionRender={() => (
+        <Popconfirm
+          title={`确认将选中的 ${selectedRowKeys.length} 个商品提交审核?`}
+          onConfirm={handleBatchSubmit}
+        >
+          <Button type="primary" size="small">
+            批量提交审核
+          </Button>
+        </Popconfirm>
+      )}
       toolBarRender={() => [
+        <Popconfirm
+          key="batchSubmit"
+          title={`确认将选中的 ${selectedRowKeys.length} 个商品提交审核?`}
+          disabled={selectedRowKeys.length === 0}
+          onConfirm={handleBatchSubmit}
+        >
+          <Button disabled={selectedRowKeys.length === 0}>批量提交审核</Button>
+        </Popconfirm>,
         <Button
           key="add"
           type="primary"
@@ -157,6 +214,7 @@ const ShopProductListPage: React.FC = () => {
           size: params.pageSize,
           shopId,
           name: params.name,
+          categoryId: params.categoryId,
         });
         return {
           data: res.data?.records || [],

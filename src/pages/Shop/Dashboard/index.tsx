@@ -11,8 +11,7 @@ import React, { useEffect, useState } from 'react';
 import {
   getDashboardOverview,
   getPendingCounts,
-  getStockWarningList,
-} from '@/services/ant-design-pro/api';
+  getStockWarningList, getShopSubsidySummary } from '@/services/ant-design-pro/api';
 
 const pendingItems = (counts: API.PendingCounts) => [
   {
@@ -77,6 +76,16 @@ const ShopDashboardPage: React.FC = () => {
       .catch(() => {});
   }, []);
 
+  const [subsidy, setSubsidy] = useState<number | null>(null);
+
+  useEffect(() => {
+    getShopSubsidySummary().then((res) => {
+      if (res.code === 200 && res.data) {
+        setSubsidy(Number(res.data.monthShopSubsidy));
+      }
+    }).catch(() => {});
+  }, []);
+
   const totalPending =
     counts.pendingShipment +
     counts.pendingAfterSale +
@@ -119,6 +128,14 @@ const ShopDashboardPage: React.FC = () => {
         <Col span={6}>
           <Card>
             <Statistic title="待处理事项" value={totalPending} valueStyle={{ color: '#ff4d4f' }} />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card>
+            <Statistic title="本月店铺补贴" value={subsidy ?? '--'} prefix="¥" precision={2} />
+            <div style={{ fontSize: 12, color: '#999', marginTop: 4 }}>
+              优惠券承担（已支付口径，售后不冲减）
+            </div>
           </Card>
         </Col>
       </Row>

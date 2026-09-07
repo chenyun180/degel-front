@@ -1,6 +1,7 @@
 import { Button, Image, message, Space, Spin } from 'antd';
 import React, { useRef, useState } from 'react';
 import { uploadFile } from '@/services/ant-design-pro/api';
+import { fileUrl } from '@/utils/fileUrl';
 
 type ImageGalleryUploadProps = {
   value?: string[];
@@ -63,7 +64,7 @@ const ImageGalleryUpload: React.FC<ImageGalleryUploadProps> = ({
         {value.map((url) => (
           <div key={url} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <Image
-              src={url}
+              src={fileUrl(url)}
               alt="gallery"
               width={72}
               height={72}

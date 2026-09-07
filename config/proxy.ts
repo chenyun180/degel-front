@@ -20,5 +20,9 @@ export default {
       target: 'http://localhost:9999',
       changeOrigin: true,
     },
+    '/marketing/': {
+      target: 'http://localhost:9999',
+      changeOrigin: true,
+    },
   },
 };

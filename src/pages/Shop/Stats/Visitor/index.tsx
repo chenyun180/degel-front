@@ -1,3 +1,4 @@
+import { fileUrl } from '@/utils/fileUrl';
 import { ProColumns, ProTable } from '@ant-design/pro-components';
 import { Image, Radio } from 'antd';
 import React, { useState } from 'react';
@@ -22,7 +23,7 @@ const ShopStatsVisitorPage: React.FC = () => {
       search: false,
       width: 70,
       render: (_, record) =>
-        record.mainImage ? <Image src={record.mainImage} width={40} height={40} /> : '-',
+        record.mainImage ? <Image src={fileUrl(record.mainImage)} width={40} height={40} /> : '-',
     },
     { title: '商品名称', dataIndex: 'spuName', search: false },
     { title: '浏览次数', dataIndex: 'viewCount', search: false, width: 100 },

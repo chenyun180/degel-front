@@ -1,6 +1,7 @@
 import { Button, Image, message, Spin } from 'antd';
 import React, { useRef, useState } from 'react';
 import { uploadFile } from '@/services/ant-design-pro/api';
+import { fileUrl } from '@/utils/fileUrl';
 
 type ImageUploadProps = {
   value?: string;
@@ -66,7 +67,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
           <>
             <span>已上传图片</span>
             <Image
-              src={value}
+              src={fileUrl(value)}
               alt="uploaded"
               width={64}
               height={64}

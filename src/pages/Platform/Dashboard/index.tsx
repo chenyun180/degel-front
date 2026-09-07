@@ -245,6 +245,19 @@ const PlatformDashboardPage: React.FC = () => {
           </Card>
         </Col>
         <Col span={6}>
+          <Card>
+            <Statistic
+              title="本月平台补贴"
+              value={overview?.monthPlatformSubsidy !== undefined && overview?.monthPlatformSubsidy !== null ? Number(overview.monthPlatformSubsidy) : '--'}
+              prefix="¥"
+              precision={2}
+            />
+            <div style={{ fontSize: 12, color: '#999', marginTop: 4 }}>
+              优惠券承担（已支付口径，售后不冲减）
+            </div>
+          </Card>
+        </Col>
+        <Col span={6}>
           <Card
             hoverable
             onClick={() => history.push('/platform-product/audit')}

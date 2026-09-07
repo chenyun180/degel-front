@@ -305,7 +305,8 @@ declare namespace API {
     pendingShipCount: number;
     shopTop5: ShopGmvRank[];
     productTop5: ProductGmvRank[];
-  };
+    /** 本月平台补贴（优惠券） */
+  monthPlatformSubsidy?: number;};
 
   type DailyGmv = {
     date: string;

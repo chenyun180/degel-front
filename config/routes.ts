@@ -31,6 +31,13 @@ export default [
     ],
   },
   {
+    path: '/platform-marketing',
+    access: 'canAdmin',
+    routes: [
+      { path: '/platform-marketing/coupon', name: '优惠券管理', component: './Platform/Marketing/Coupon' },
+    ],
+  },
+  {
     path: '/platform-product',
     access: 'canAdmin',
     routes: [
@@ -85,6 +92,15 @@ export default [
           {
             path: '/shop-workspace/shop-stats-dir/shop-stats-visitor',
             component: './Shop/Stats/Visitor',
+          },
+        ],
+      },
+      {
+        path: '/shop-workspace/shop-marketing-dir',
+        routes: [
+          {
+            path: '/shop-workspace/shop-marketing-dir/shop-coupon-list',
+            component: './Shop/Marketing/Coupon',
           },
         ],
       },
