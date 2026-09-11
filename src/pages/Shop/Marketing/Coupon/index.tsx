@@ -1,4 +1,4 @@
-import { ActionType, ModalForm, ProColumns, ProFormDateTimePicker, ProFormDigit, ProFormSelect, ProFormText, ProTable } from '@ant-design/pro-components';
+import { ActionType, ModalForm, ProColumns, ProFormDateTimePicker, ProFormDependency, ProFormDigit, ProFormSelect, ProFormText, ProTable } from '@ant-design/pro-components';
 import { message, Popconfirm, Tag } from 'antd';
 import React, { useRef, useState } from 'react';
 import { createShopCoupon, getShopCoupons, stopShopCoupon } from '@/services/ant-design-pro/api';
@@ -146,6 +146,8 @@ const ShopCouponPage: React.FC = () => {
             ...values,
             receiveStart: toLocalDateTime(values.receiveStart),
             receiveEnd: toLocalDateTime(values.receiveEnd),
+            validStart: toLocalDateTime(values.validStart),
+            validEnd: toLocalDateTime(values.validEnd),
           };
           const res = await createShopCoupon(payload);
           if (res.code === 200) {
@@ -183,7 +185,19 @@ const ShopCouponPage: React.FC = () => {
             { value: 1, label: '绝对时间' },
           ]}
         />
-        <ProFormDigit name="validDays" label="领取后N天有效" min={1} initialValue={7} fieldProps={{ precision: 0 }} />
+        {/* 有效期字段按 validType 条件渲染：N天模式只收 validDays，绝对时间模式必须填起止时间（后端 validateCreate 强校验） */}
+        <ProFormDependency name={['validType']}>
+          {({ validType }) =>
+            validType === 1 ? (
+              <>
+                <ProFormDateTimePicker name="validStart" label="生效开始" rules={[{ required: true }]} />
+                <ProFormDateTimePicker name="validEnd" label="生效截止" rules={[{ required: true }]} />
+              </>
+            ) : (
+              <ProFormDigit name="validDays" label="领取后N天有效" min={1} initialValue={7} fieldProps={{ precision: 0 }} rules={[{ required: true }]} />
+            )
+          }
+        </ProFormDependency>
       </ModalForm>
     </>
   );

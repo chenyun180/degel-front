@@ -313,4 +313,51 @@ declare namespace API {
     gmv: number;
     orderCount: number;
   };
+
+  type CouponItem = {
+    id: string;
+    name: string;
+    /** 1=平台券 2=店铺券 3=分摊券 */
+    funderType: number;
+    shopId?: number;
+    /** 1=满减 2=折扣 3=无门槛 */
+    discountType: number;
+    thresholdAmount?: number | string;
+    discountValue: number | string;
+    totalCount: number;
+    issuedCount: number;
+    perUserLimit: number;
+    receiveStart?: string;
+    receiveEnd?: string;
+    validStart?: string;
+    validEnd?: string;
+    validDays?: number;
+    /** 1=绝对时间 2=领取后N天 */
+    validType?: number;
+    /** 0=未生效 1=进行中 2=停发 */
+    status: number;
+    /** 1=待审核 2=已通过 3=已驳回 */
+    auditStatus?: number;
+    rejectReason?: string;
+    platformAmount?: number | string;
+    shopAmount?: number | string;
+    createTime?: string;
+  };
+
+  type CouponCreateParams = {
+    name: string;
+    /** 1=满减 2=折扣 3=无门槛 */
+    discountType: number;
+    thresholdAmount?: number;
+    discountValue: number;
+    totalCount: number;
+    perUserLimit: number;
+    receiveStart?: string;
+    receiveEnd?: string;
+    /** 1=绝对时间 2=领取后N天 */
+    validType: number;
+    validStart?: string;
+    validEnd?: string;
+    validDays?: number;
+  };
 }
