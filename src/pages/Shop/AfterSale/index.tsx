@@ -1,4 +1,4 @@
-import { ActionType, ProColumns, ProTable } from '@ant-design/pro-components';
+import { type ActionType, type ProColumns, ProTable } from '@ant-design/pro-components';
 import { useModel } from '@umijs/max';
 import { Form, Input, message, Modal, Popconfirm, Tag } from 'antd';
 import React, { useRef, useState } from 'react';
@@ -25,7 +25,7 @@ const statusMap: Record<number, { text: string; color: string }> = {
 const ShopAfterSalePage: React.FC = () => {
   const { initialState } = useModel('@@initialState');
   const shopId = initialState?.currentUser?.user?.shopId as number;
-  const actionRef = useRef<ActionType>();
+  const actionRef = useRef<ActionType>(undefined);
 
   const [remarkOpen, setRemarkOpen] = useState(false);
   const [remarkAction, setRemarkAction] = useState<'agree' | 'reject'>('agree');
@@ -87,7 +87,7 @@ const ShopAfterSalePage: React.FC = () => {
       render: (_, record) =>
         [
           record.status === 0 && (
-            <a key="agree" onClick={() => openRemarkModal(record.id!, 'agree')}>
+            <a key="agree" onClick={() => openRemarkModal(record.id as number, 'agree')}>
               同意
             </a>
           ),
@@ -95,7 +95,7 @@ const ShopAfterSalePage: React.FC = () => {
             <a
               key="reject"
               style={{ color: 'red' }}
-              onClick={() => openRemarkModal(record.id!, 'reject')}
+              onClick={() => openRemarkModal(record.id as number, 'reject')}
             >
               拒绝
             </a>
@@ -105,7 +105,7 @@ const ShopAfterSalePage: React.FC = () => {
               key="confirm"
               title="确认已收到退回商品?"
               onConfirm={async () => {
-                await confirmAfterSaleReceive({ afterSaleId: record.id! });
+                await confirmAfterSaleReceive({ afterSaleId: record.id as number });
                 message.success('已确认收货');
                 actionRef.current?.reload();
               }}

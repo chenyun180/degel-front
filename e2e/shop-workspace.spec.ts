@@ -60,7 +60,7 @@ test.describe('店铺端回归（shop 账号）', () => {
     await page.getByText('发货', { exact: true }).first().click();
     await expect(page.getByText('订单发货')).toBeVisible();
     await page.locator('#expressCompany').fill('e2e测试快递');
-    await page.locator('#expressNo').fill('E2E' + Date.now());
+    await page.locator('#expressNo').fill(`E2E${Date.now()}`);
     await page.getByRole('button', { name: /确\s*定/ }).click();
     const res = await deliverApi;
     expect(res.status()).toBe(200);

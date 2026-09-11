@@ -1,4 +1,4 @@
-import { ActionType, ModalForm, ProColumns, ProFormDateTimePicker, ProFormDependency, ProFormDigit, ProFormSelect, ProFormText, ProTable } from '@ant-design/pro-components';
+import { type ActionType, ModalForm, type ProColumns, ProFormDateTimePicker, ProFormDependency, ProFormDigit, ProFormSelect, ProFormText, ProTable } from '@ant-design/pro-components';
 import { message, Popconfirm, Tag } from 'antd';
 import React, { useRef, useState } from 'react';
 import { createShopCoupon, getShopCoupons, stopShopCoupon } from '@/services/ant-design-pro/api';
@@ -50,7 +50,7 @@ const ShopCouponPage: React.FC = () => {
       width: 100,
       search: false,
       render: (_, r) => {
-        const t = auditStatusMap[r.auditStatus] || { text: '-', color: 'default' };
+        const t = auditStatusMap[r.auditStatus as number] || { text: '-', color: 'default' };
         return <Tag color={t.color}>{t.text}</Tag>;
       },
     },
@@ -141,7 +141,7 @@ const ShopCouponPage: React.FC = () => {
           searchConfig: { submitText: '提交审核' },
           resetButtonProps: { style: { display: 'none' } },
         }}
-        onFinish={async (values) => {
+        onFinish={async (values: any) => {
           const payload: API.CouponCreateParams = {
             ...values,
             receiveStart: toLocalDateTime(values.receiveStart),

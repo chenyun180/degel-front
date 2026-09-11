@@ -1,5 +1,5 @@
 import { PlusOutlined } from '@ant-design/icons';
-import { ActionType, ProColumns, ProTable } from '@ant-design/pro-components';
+import { type ActionType, type ProColumns, ProTable } from '@ant-design/pro-components';
 import { useModel } from '@umijs/max';
 import { Button, Form, Input, message, Modal, Popconfirm, Tag } from 'antd';
 import React, { useRef, useState } from 'react';
@@ -18,7 +18,7 @@ const ShopProductPage: React.FC = () => {
   const { initialState } = useModel('@@initialState');
   const shopId = initialState?.currentUser?.user?.shopId as number;
 
-  const actionRef = useRef<ActionType>();
+  const actionRef = useRef<ActionType>(undefined);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingSpu, setEditingSpu] = useState<API.ProductSpu | null>(null);
   const [form] = Form.useForm();
@@ -49,7 +49,7 @@ const ShopProductPage: React.FC = () => {
         }}>编辑</a>,
         record.auditStatus === 0 || record.auditStatus === 3 ? (
           <Popconfirm key="submit" title="确认提交审核?" onConfirm={async () => {
-            await submitSpuAudit(record.id!);
+            await submitSpuAudit(record.id as number);
             message.success('已提交审核');
             actionRef.current?.reload();
           }}>
@@ -57,7 +57,7 @@ const ShopProductPage: React.FC = () => {
           </Popconfirm>
         ) : null,
         <Popconfirm key="delete" title="确认删除该商品?" onConfirm={async () => {
-          await deleteSpu(record.id!);
+          await deleteSpu(record.id as number);
           message.success('删除成功');
           actionRef.current?.reload();
         }}><a style={{ color: 'red' }}>删除</a></Popconfirm>,

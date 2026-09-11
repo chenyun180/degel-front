@@ -2,7 +2,6 @@ import { history } from '@umijs/max';
 import { Tabs } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  addPageTab,
   buildPageRouteMap,
   closePageTab,
   restorePageTabs,

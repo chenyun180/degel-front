@@ -1,5 +1,5 @@
 import { fileUrl } from '@/utils/fileUrl';
-import { ProColumns, ProTable } from '@ant-design/pro-components';
+import { type ProColumns, ProTable } from '@ant-design/pro-components';
 import { Image, Radio } from 'antd';
 import React, { useState } from 'react';
 import { getVisitorRankStats } from '@/services/ant-design-pro/api';

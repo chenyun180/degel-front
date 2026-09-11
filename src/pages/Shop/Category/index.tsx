@@ -1,4 +1,4 @@
-import { ProColumns, ProTable } from '@ant-design/pro-components';
+import { type ProColumns, ProTable } from '@ant-design/pro-components';
 import { Tag } from 'antd';
 import React from 'react';
 import { getCategoryTree } from '@/services/ant-design-pro/api';

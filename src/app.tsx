@@ -89,7 +89,7 @@ function routersToMenuData(routers: API.RouterItem[]): any[] {
     }));
 }
 
-export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) => {
+export const layout: RunTimeLayoutConfig = ({ initialState }) => {
   const routers: API.RouterItem[] = initialState?.currentUser?.routers || [];
 
   return {

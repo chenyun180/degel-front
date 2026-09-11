@@ -41,6 +41,12 @@ declare namespace API {
     password: string;
   };
 
+  type FakeCaptcha = {
+    code?: number;
+    msg?: string;
+    data?: string;
+  };
+
   type R<T> = {
     code: number;
     msg: string;
@@ -346,6 +352,12 @@ declare namespace API {
 
   type CouponCreateParams = {
     name: string;
+    /** 1=平台券 2=店铺券 3=分摊券（平台建券用；店铺建券后端固定 2） */
+    funderType?: number;
+    shopId?: number;
+    /** 分摊券出资拆分 */
+    platformAmount?: number;
+    shopAmount?: number;
     /** 1=满减 2=折扣 3=无门槛 */
     discountType: number;
     thresholdAmount?: number;

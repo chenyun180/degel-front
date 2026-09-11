@@ -1,5 +1,5 @@
 import { PlusOutlined } from '@ant-design/icons';
-import { ActionType, ProColumns, ProTable } from '@ant-design/pro-components';
+import { type ActionType, type ProColumns, ProTable } from '@ant-design/pro-components';
 import { Alert, Button, Form, Input, InputNumber, message, Modal, Popconfirm, Select, Tag, Tree } from 'antd';
 import React, { useRef, useState } from 'react';
 import {
@@ -13,7 +13,7 @@ const isBuiltIn = (role: API.SysRole) => role.roleKey === 'admin' || role.roleKe
 const collectParentIds = (menus: API.SysMenu[], acc: Set<number> = new Set()): Set<number> => {
   menus.forEach((m) => {
     if (m.children && m.children.length > 0) {
-      acc.add(m.id!);
+      acc.add(m.id as number);
       collectParentIds(m.children, acc);
     }
   });
@@ -28,7 +28,7 @@ const toLeafOnlyIds = (ids: number[], tree: API.SysMenu[]): number[] => {
 };
 
 const RolePage: React.FC = () => {
-  const actionRef = useRef<ActionType>();
+  const actionRef = useRef<ActionType>(undefined);
   const [modalOpen, setModalOpen] = useState(false);
   const [menuModalOpen, setMenuModalOpen] = useState(false);
   const [editingRole, setEditingRole] = useState<API.SysRole | null>(null);
@@ -77,7 +77,7 @@ const RolePage: React.FC = () => {
         }}>编辑</a>,
         <a key="perm" onClick={async () => {
           setAssigningRole(record);
-          const [treeRes, idsRes] = await Promise.all([getMenuTree(), getRoleMenuIds(record.id!)]);
+          const [treeRes, idsRes] = await Promise.all([getMenuTree(), getRoleMenuIds(record.id as number)]);
           if (treeRes.code === 200) setMenuTree(treeRes.data || []);
           if (idsRes.code === 200) {
             setCheckedKeys(toLeafOnlyIds(idsRes.data || [], treeRes.data || []));
@@ -88,7 +88,7 @@ const RolePage: React.FC = () => {
         ...(
           // 内置角色不允许删除（后端同样有保护）
           isBuiltIn(record) ? [] : [<Popconfirm key="delete" title="确认删除?" onConfirm={async () => {
-            await deleteRole(record.id!);
+            await deleteRole(record.id as number);
             message.success('删除成功');
             actionRef.current?.reload();
           }}><a style={{ color: 'red' }}>删除</a></Popconfirm>]
@@ -113,8 +113,9 @@ const RolePage: React.FC = () => {
   };
 
   const handleAssignMenus = async () => {
+    if (!assigningRole) return;
     // 全选节点 + 半选父目录一起提交（半选父目录不提交会导致整个子菜单树从路由中消失）
-    await assignMenus(assigningRole!.id!, [...checkedKeys, ...halfCheckedKeys]);
+    await assignMenus(assigningRole.id as number, [...checkedKeys, ...halfCheckedKeys]);
     message.success('权限分配成功');
     setMenuModalOpen(false);
   };

@@ -1,6 +1,6 @@
 import { fileUrl } from '@/utils/fileUrl';
 import { PlusOutlined } from '@ant-design/icons';
-import { ActionType, ProColumns, ProTable } from '@ant-design/pro-components';
+import { type ActionType, type ProColumns, ProTable } from '@ant-design/pro-components';
 import { history, useModel } from '@umijs/max';
 import { Button, Image, message, Popconfirm, Switch, Tag } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
@@ -32,7 +32,7 @@ const formatCurrency = (value: unknown) => {
 const ShopProductListPage: React.FC = () => {
   const { initialState } = useModel('@@initialState');
   const shopId = initialState?.currentUser?.user?.shopId as number;
-  const actionRef = useRef<ActionType>();
+  const actionRef = useRef<ActionType>(undefined);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [categoryOptions, setCategoryOptions] = useState<{ label: string; value: number }[]>([]);
 
@@ -45,7 +45,7 @@ const ShopProductListPage: React.FC = () => {
       const tree = res.data || [];
       const roots = tree.flatMap((root: API.ProductCategory) => root.children || [root]);
       setCategoryOptions(
-        roots.map((c: API.ProductCategory) => ({ label: c.name || '', value: c.id! })),
+        roots.map((c: API.ProductCategory) => ({ label: c.name || '', value: c.id as number })),
       );
     });
   }, []);

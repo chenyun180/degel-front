@@ -4,7 +4,7 @@ import {
   ShoppingCartOutlined,
   TruckOutlined,
 } from '@ant-design/icons';
-import { ProColumns, ProTable } from '@ant-design/pro-components';
+import { type ProColumns, ProTable } from '@ant-design/pro-components';
 import { history } from '@umijs/max';
 import { Card, Col, Row, Statistic } from 'antd';
 import React, { useEffect, useState } from 'react';

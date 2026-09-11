@@ -10,7 +10,6 @@ export default defineConfig({
   testDir: './e2e',
   globalSetup: './e2e/global-setup.ts',
   fullyParallel: false, // 登录态互相干扰，串行执行
-  retries: 0,
   // dev server 按需编译 + 新 context 冷启动渲染较慢（实测菜单渲染 ~22s，路由首编可达 45s+）
   // 且 utoopack dev 在编译压力下代理请求偶发失败（表现为空表格/无网络日志）——环境抖动用 retries 兜底
   timeout: 240_000,

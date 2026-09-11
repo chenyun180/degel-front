@@ -47,7 +47,7 @@ const MenuPage: React.FC = () => {
         <>
           <a onClick={() => { setEditingMenu(record); form.setFieldsValue(record); setModalOpen(true); }}>编辑</a>
           <a style={{ marginLeft: 8 }} onClick={() => { form.resetFields(); form.setFieldsValue({ parentId: record.id, menuType: 'C' }); setEditingMenu(null); setModalOpen(true); }}>新增子菜单</a>
-          <Popconfirm title="确认删除?" onConfirm={async () => { await deleteMenu(record.id!); message.success('删除成功'); fetchData(); }}>
+          <Popconfirm title="确认删除?" onConfirm={async () => { await deleteMenu(record.id as number); message.success('删除成功'); fetchData(); }}>
             <a style={{ marginLeft: 8, color: 'red' }}>删除</a>
           </Popconfirm>
         </>

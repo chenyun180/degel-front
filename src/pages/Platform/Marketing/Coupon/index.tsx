@@ -1,7 +1,7 @@
 import {
-  ActionType,
+  type ActionType,
   ModalForm,
-  ProColumns,
+  type ProColumns,
   ProFormDateTimePicker,
   ProFormDependency,
   ProFormDigit,
@@ -133,7 +133,7 @@ const PlatformCouponPage: React.FC = () => {
         [3, { text: '已驳回' }],
       ]),
       render: (_, r) => {
-        const t = auditStatusMap[r.auditStatus] || {
+        const t = auditStatusMap[r.auditStatus as number] || {
           text: '-',
           color: 'default',
         };
@@ -255,7 +255,7 @@ const PlatformCouponPage: React.FC = () => {
           searchConfig: { submitText: '创建' },
           resetButtonProps: { style: { display: 'none' } },
         }}
-        onFinish={async (values) => {
+        onFinish={async (values: any) => {
           const payload: API.CouponCreateParams = {
             ...values,
             funderType: values.funderType ?? 1,
@@ -405,11 +405,12 @@ const PlatformCouponPage: React.FC = () => {
         title={`驳回券：${rejectTarget?.name ?? ''}`}
         open={!!rejectTarget}
         onOk={async () => {
+          if (!rejectTarget?.id) return;
           if (!rejectReason.trim()) {
             message.warning('请填写驳回理由');
             return;
           }
-          await doAudit(rejectTarget!.id, false, rejectReason.trim());
+          await doAudit(rejectTarget.id, false, rejectReason.trim());
           setRejectTarget(null);
         }}
         onCancel={() => setRejectTarget(null)}

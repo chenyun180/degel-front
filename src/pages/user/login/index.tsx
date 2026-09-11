@@ -13,7 +13,7 @@ import {
 } from '@/utils/routeAccess';
 import Settings from '../../../../config/defaultSettings';
 
-const useStyles = createStyles(({ token }) => ({
+const useStyles = createStyles(() => ({
   container: {
     display: 'flex',
     flexDirection: 'column',

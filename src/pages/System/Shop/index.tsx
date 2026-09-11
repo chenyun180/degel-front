@@ -1,12 +1,12 @@
 import { PlusOutlined } from '@ant-design/icons';
-import { ActionType, ProColumns, ProTable } from '@ant-design/pro-components';
+import { type ActionType, type ProColumns, ProTable } from '@ant-design/pro-components';
 import { Button, Descriptions, Form, Input, DatePicker, message, Modal, Select, Switch } from 'antd';
 import React, { useRef, useState } from 'react';
 import dayjs from 'dayjs';
 import { getShopList, createShop, updateShop, toggleShopStatus } from '@/services/ant-design-pro/api';
 
 const ShopPage: React.FC = () => {
-  const actionRef = useRef<ActionType>();
+  const actionRef = useRef<ActionType>(undefined);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingShop, setEditingShop] = useState<API.SysShop | null>(null);
   const [accountInfo, setAccountInfo] = useState<{ username: string; password: string } | null>(null);
@@ -23,7 +23,7 @@ const ShopPage: React.FC = () => {
       render: (_, record) => (
         <Switch checked={record.status === 0} checkedChildren="正常" unCheckedChildren="停用"
           onChange={async (checked) => {
-            await toggleShopStatus(record.id!, checked ? 0 : 1);
+            await toggleShopStatus(record.id as number, checked ? 0 : 1);
             message.success('状态更新成功');
             actionRef.current?.reload();
           }} />

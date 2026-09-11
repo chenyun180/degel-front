@@ -1,5 +1,5 @@
 import { fileUrl } from '@/utils/fileUrl';
-import { ActionType, ProColumns, ProTable } from '@ant-design/pro-components';
+import { type ActionType, type ProColumns, ProTable } from '@ant-design/pro-components';
 import { useModel } from '@umijs/max';
 import {
   Descriptions,
@@ -38,7 +38,7 @@ const statusTabs = [
 const ShopOrderListPage: React.FC = () => {
   const { initialState } = useModel('@@initialState');
   const shopId = initialState?.currentUser?.user?.shopId as number;
-  const actionRef = useRef<ActionType>();
+  const actionRef = useRef<ActionType>(undefined);
 
   const [activeTab, setActiveTab] = useState('');
   const [detailOpen, setDetailOpen] = useState(false);
@@ -90,14 +90,14 @@ const ShopOrderListPage: React.FC = () => {
       valueType: 'option',
       render: (_, record) =>
         [
-          <a key="detail" onClick={() => handleViewDetail(record.id!)}>
+          <a key="detail" onClick={() => handleViewDetail(record.id as number)}>
             详情
           </a>,
           record.status === 1 ? (
             <a
               key="ship"
               onClick={() => {
-                setShippingOrderId(record.id!);
+                setShippingOrderId(record.id as number);
                 shipForm.resetFields();
                 setShipOpen(true);
               }}
@@ -156,10 +156,10 @@ const ShopOrderListPage: React.FC = () => {
               <Descriptions.Item label="状态">
                 <Tag
                   color={
-                    (orderStatusMap[detail.order.status!] || { color: 'default' }).color
+                    (orderStatusMap[detail.order.status as number] || { color: 'default' }).color
                   }
                 >
-                  {(orderStatusMap[detail.order.status!] || { text: '未知' }).text}
+                  {(orderStatusMap[detail.order.status as number] || { text: '未知' }).text}
                 </Tag>
               </Descriptions.Item>
               <Descriptions.Item label="实付金额">

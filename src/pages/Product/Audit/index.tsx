@@ -1,4 +1,4 @@
-import { ActionType, ProColumns, ProTable } from '@ant-design/pro-components';
+import { type ActionType, type ProColumns, ProTable } from '@ant-design/pro-components';
 import { Input, message, Modal, Popconfirm, Tag } from 'antd';
 import React, { useRef, useState } from 'react';
 import { auditSpu, getSpuList } from '@/services/ant-design-pro/api';
@@ -133,7 +133,8 @@ const ProductAuditPage: React.FC = () => {
             message.warning('请填写驳回理由');
             return;
           }
-          await doAudit(rejectTarget!.id, false, rejectReason.trim());
+          if (!rejectTarget?.id) return;
+          await doAudit(rejectTarget.id, false, rejectReason.trim());
           setRejectTarget(null);
         }}
         onCancel={() => setRejectTarget(null)}

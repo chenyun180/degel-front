@@ -1,5 +1,5 @@
 import { DownloadOutlined } from '@ant-design/icons';
-import { ActionType, ProColumns, ProTable } from '@ant-design/pro-components';
+import { type ActionType, type ProColumns, ProTable } from '@ant-design/pro-components';
 import { useModel } from '@umijs/max';
 import { Button, Form, Input, message, Modal, Tag } from 'antd';
 import React, { useRef, useState } from 'react';
@@ -8,7 +8,7 @@ import { deliverOrder, exportOrders, getOrderList } from '@/services/ant-design-
 const ShopOrderShipPage: React.FC = () => {
   const { initialState } = useModel('@@initialState');
   const shopId = initialState?.currentUser?.user?.shopId as number;
-  const actionRef = useRef<ActionType>();
+  const actionRef = useRef<ActionType>(undefined);
 
   const [shipOpen, setShipOpen] = useState(false);
   const [shippingOrderId, setShippingOrderId] = useState<number>(0);
@@ -79,7 +79,7 @@ const ShopOrderShipPage: React.FC = () => {
         <a
           key="ship"
           onClick={() => {
-            setShippingOrderId(record.id!);
+            setShippingOrderId(record.id as number);
             shipForm.resetFields();
             setShipOpen(true);
           }}

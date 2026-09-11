@@ -1,13 +1,13 @@
 import { PlusOutlined } from '@ant-design/icons';
-import { ActionType, ProColumns, ProTable } from '@ant-design/pro-components';
-import { Button, Form, Input, InputNumber, message, Modal, Popconfirm, Select, Tag } from 'antd';
+import { type ActionType, type ProColumns, ProTable } from '@ant-design/pro-components';
+import { Button, Form, Input, InputNumber, message, Modal, Popconfirm, Select, } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   getUserList, createUser, updateUser, deleteUser, getAllRoles,
 } from '@/services/ant-design-pro/api';
 
 const UserPage: React.FC = () => {
-  const actionRef = useRef<ActionType>();
+  const actionRef = useRef<ActionType>(undefined);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<API.SysUser | null>(null);
   const [roles, setRoles] = useState<API.SysRole[]>([]);
@@ -45,7 +45,7 @@ const UserPage: React.FC = () => {
           setModalOpen(true);
         }}>编辑</a>,
         <Popconfirm key="delete" title="确认删除?" onConfirm={async () => {
-          await deleteUser(record.id!);
+          await deleteUser(record.id as number);
           message.success('删除成功');
           actionRef.current?.reload();
         }}><a style={{ color: 'red' }}>删除</a></Popconfirm>,

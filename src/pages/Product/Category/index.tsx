@@ -137,7 +137,7 @@ const CategoryPage: React.FC = () => {
           </a>
           <Popconfirm
             title="确认删除该分类？子分类存在时无法删除。"
-            onConfirm={() => handleDelete(record.id!)}
+            onConfirm={() => handleDelete(record.id as number)}
           >
             <a style={{ marginLeft: 8, color: 'red' }}>删除</a>
           </Popconfirm>
