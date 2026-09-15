@@ -35,6 +35,8 @@ export default [
     access: 'canAdmin',
     routes: [
       { path: '/platform-marketing/coupon', name: '优惠券管理', component: './Platform/Marketing/Coupon' },
+      { path: '/platform-marketing/banner', name: '轮播图管理', component: './Platform/Marketing/Banner' },
+      { path: '/platform-marketing/seckill', name: '秒杀场次管理', component: './Platform/Marketing/Seckill' },
     ],
   },
   {

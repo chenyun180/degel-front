@@ -372,4 +372,86 @@ declare namespace API {
     validEnd?: string;
     validDays?: number;
   };
+
+  // ===================== 轮播图（营销） =====================
+
+  type BannerItem = {
+    /** 雪花 id，后端 ToStringSerializer 出参为字符串 */
+    id: string;
+    title: string;
+    /** 图片 objectKey（公开桶，经 fileUrl 拼预览地址） */
+    image: string;
+    /** 0=无跳转 1=内部页面 2=商品详情 3=外部链接 */
+    linkType: number;
+    linkValue?: string | null;
+    sort: number;
+    /** 0=下架 1=上架 */
+    status: number;
+    /** NULL=立即生效 */
+    startTime?: string | null;
+    /** NULL=永久有效 */
+    endTime?: string | null;
+    createTime?: string;
+  };
+
+  type BannerSaveParams = {
+    /** 空=新增，非空=编辑 */
+    id?: string;
+    title: string;
+    image: string;
+    linkType: number;
+    /** linkType=0 传 null；=2 传 spuId 字符串；=3 传 https 链接 */
+    linkValue?: string | null;
+    sort: number;
+    startTime?: string | null;
+    endTime?: string | null;
+  };
+
+  // ===================== 秒杀（营销） =====================
+
+  type SeckillSessionItem = {
+    /** 雪花 id，后端 ToStringSerializer 出参为字符串 */
+    id: string;
+    name: string;
+    startTime?: string | null;
+    endTime?: string | null;
+    /** 0=停用 1=启用 */
+    status: number;
+    sort: number;
+    createTime?: string;
+  };
+
+  type SeckillSessionSaveParams = {
+    /** 空=新增，非空=编辑；status 不在入参（新建默认停用，走 toggle 启用） */
+    id?: string;
+    name: string;
+    startTime?: string | null;
+    endTime?: string | null;
+    sort: number;
+  };
+
+  type SeckillProductItem = {
+    /** 雪花 id，后端 ToStringSerializer 出参为字符串 */
+    id: string;
+    sessionId: string;
+    /** 后端可能出字符串或数字，提交时统一转 number */
+    spuId: number | string;
+    skuId: number | string;
+    seckillPrice: number;
+    seckillStock: number;
+    perLimit: number;
+    sort: number;
+  };
+
+  type SeckillProductSaveParams = {
+    /** 空=新增，非空=编辑 */
+    id?: string;
+    sessionId: string;
+    spuId: number;
+    skuId: number;
+    seckillPrice: number;
+    seckillStock: number;
+    perLimit: number;
+    sort: number;
+  };
 }

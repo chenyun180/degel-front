@@ -389,3 +389,105 @@ export async function getShopSubsidySummary() {
     method: 'GET',
   });
 }
+
+// ===================== 轮播图（营销） =====================
+
+/** 平台轮播图分页（title 模糊 + status 筛选；注意分页参数是 page/pageSize） */
+export async function getBannerPage(params: {
+  page?: number;
+  pageSize?: number;
+  title?: string;
+  status?: number;
+}) {
+  return request<API.R<API.PageResult<API.BannerItem>>>(
+    '/marketing/platform/banner/page',
+    { method: 'GET', params },
+  );
+}
+
+/** 新增/编辑轮播图（id 空=新增；linkType=0 时 linkValue 传 null） */
+export async function saveBanner(data: API.BannerSaveParams) {
+  return request<API.R<null>>('/marketing/platform/banner', {
+    method: 'POST',
+    data,
+  });
+}
+
+/** 上/下架取反（1↔0） */
+export async function toggleBannerStatus(id: string) {
+  return request<API.R<null>>(`/marketing/platform/banner/toggle-status/${id}`, {
+    method: 'PUT',
+  });
+}
+
+/** 逻辑删除 */
+export async function deleteBanner(id: string) {
+  return request<API.R<null>>(`/marketing/platform/banner/${id}`, {
+    method: 'DELETE',
+  });
+}
+
+// ===================== 秒杀场次/场次商品（营销） =====================
+
+/** 秒杀场次分页（name 模糊 + status 筛选；分页参数是 page/pageSize） */
+export async function getSeckillSessionPage(params: {
+  page?: number;
+  pageSize?: number;
+  name?: string;
+  status?: number;
+}) {
+  return request<API.R<API.PageResult<API.SeckillSessionItem>>>(
+    '/marketing/platform/seckill/session/page',
+    { method: 'GET', params },
+  );
+}
+
+/** 新增/编辑秒杀场次（id 空=新增；status 不在入参，新建默认停用） */
+export async function saveSeckillSession(data: API.SeckillSessionSaveParams) {
+  return request<API.R<null>>('/marketing/platform/seckill/session', {
+    method: 'POST',
+    data,
+  });
+}
+
+/** 逻辑删除秒杀场次 */
+export async function deleteSeckillSession(id: string) {
+  return request<API.R<null>>(`/marketing/platform/seckill/session/${id}`, {
+    method: 'DELETE',
+  });
+}
+
+/** 场次启用/停用取反（1↔0） */
+export async function toggleSeckillSessionStatus(id: string) {
+  return request<API.R<null>>(
+    `/marketing/platform/seckill/session/toggle-status/${id}`,
+    { method: 'PUT' },
+  );
+}
+
+/** 场次商品分页（sessionId 必传；分页参数是 page/pageSize） */
+export async function getSeckillProductPage(params: {
+  sessionId: string;
+  page?: number;
+  pageSize?: number;
+}) {
+  return request<API.R<API.PageResult<API.SeckillProductItem>>>(
+    '/marketing/platform/seckill/product/page',
+    { method: 'GET', params },
+  );
+}
+
+/** 新增/编辑场次商品（id 空=新增） */
+export async function saveSeckillProduct(data: API.SeckillProductSaveParams) {
+  return request<API.R<null>>('/marketing/platform/seckill/product', {
+    method: 'POST',
+    data,
+  });
+}
+
+/** 删除场次商品 */
+export async function deleteSeckillProduct(id: string) {
+  return request<API.R<null>>(`/marketing/platform/seckill/product/${id}`, {
+    method: 'DELETE',
+  });
+}
