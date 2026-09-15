@@ -155,6 +155,22 @@ declare namespace API {
     value?: string;
   };
 
+  /** /product/sku/list 出参（C 端 SKU VO 复用于管理端选择器） */
+  type AppSkuVo = {
+    id: string;
+    spuId: string;
+    shopId?: string;
+    skuCode?: string;
+    skuName?: string;
+    spuName?: string;
+    specData?: string;
+    price?: number;
+    originalPrice?: number;
+    stock?: number;
+    image?: string;
+    status?: number;
+  };
+
   type SpuDetailVo = {
     spu: ProductSpu;
     skuList: ProductSku[];

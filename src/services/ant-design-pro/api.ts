@@ -168,6 +168,14 @@ export async function getSpuById(id: number) {
   return request<API.R<API.ProductSpu>>(`/product/spu/${id}`, { method: 'GET' });
 }
 
+/** 按商品查 SKU 列表（秒杀/轮播等商品选择器用；含价格/规格/库存/状态） */
+export async function getSkuListBySpu(spuId: number | string) {
+  return request<API.R<API.AppSkuVo[]>>('/product/sku/list', {
+    method: 'GET',
+    params: { spuId },
+  });
+}
+
 export async function createSpu(data: Partial<API.ProductSpu>) {
   return request<API.R<void>>('/product/spu', { method: 'POST', data });
 }

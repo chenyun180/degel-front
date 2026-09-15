@@ -1,24 +1,44 @@
 import {
   type ActionType,
   ModalForm,
+  ProForm,
   type ProColumns,
   ProFormDateTimePicker,
+  ProFormDependency,
   ProFormDigit,
+  ProFormSelect,
   ProFormText,
   ProTable,
 } from '@ant-design/pro-components';
-import { Alert, Drawer, message, Popconfirm, Switch } from 'antd';
+import { Alert, Drawer, message, Popconfirm, Select, Switch } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   deleteSeckillProduct,
   deleteSeckillSession,
   getSeckillProductPage,
   getSeckillSessionPage,
+  getSkuListBySpu,
+  getSpuById,
+  getSpuList,
+  getShopList,
   saveSeckillProduct,
   saveSeckillSession,
   toggleSeckillSessionStatus,
 } from '@/services/ant-design-pro/api';
+
+/** specData JSON（如 {"尺码":"M","颜色":"默认"}）→ "尺码:M 颜色:默认" */
+const formatSpec = (specData?: string): string => {
+  if (!specData) return '';
+  try {
+    const obj = JSON.parse(specData);
+    return Object.entries(obj)
+      .map(([k, v]) => `${k}:${v}`)
+      .join(' ');
+  } catch {
+    return specData;
+  }
+};
 
 // 表单时间值（Dayjs 或字符串）→ 后端 'yyyy-MM-dd HH:mm:ss'（空格格式，同 Banner）
 const formatTime = (v?: Dayjs | string | null): string | null => {
@@ -40,6 +60,7 @@ type SessionFormValues = {
 };
 
 type ProductFormValues = {
+  shopFilter?: number;
   spuId?: number;
   skuId?: number;
   seckillPrice?: number;
@@ -48,13 +69,109 @@ type ProductFormValues = {
   sort?: number;
 };
 
+type SpuOption = { value: number; label: string };
+
+/**
+ * 商品远程搜索选择器（关键词防抖 300ms，可按店铺过滤）。
+ * 项目首个远程搜索下拉：商品数据量按店铺增长，不适合一次拉全量本地过滤。
+ * preset 用于编辑回显——把已选但不在搜索结果里的选项补进列表。
+ */
+const SpuSearchSelect: React.FC<{
+  shopId?: number;
+  preset?: SpuOption;
+  value?: number;
+  onChange?: (value: number) => void;
+}> = ({ shopId, preset, value, onChange }) => {
+  const [options, setOptions] = useState<SpuOption[]>(preset ? [preset] : []);
+  const [searching, setSearching] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const presetRef = useRef(preset);
+  presetRef.current = preset;
+
+  const doSearch = (keyword: string) => {
+    setSearching(true);
+    getSpuList({
+      current: 1,
+      size: 20,
+      keyword: keyword || undefined,
+      shopId: shopId || undefined,
+    })
+      .then((res) => {
+        const list = (res.data?.records || []).map((s: API.SpuListVo) => ({
+          value: Number(s.id),
+          label: `${s.name}（¥${s.minPrice ?? '-'}，ID:${s.id}）`,
+        }));
+        // 编辑回显的选项保底在列（搜索结果可能不含它）
+        if (presetRef.current && !list.some((o) => o.value === presetRef.current?.value)) {
+          list.unshift(presetRef.current);
+        }
+        setOptions(list);
+      })
+      .catch(() => setOptions([]))
+      .finally(() => setSearching(false));
+  };
+
+  // 店铺切换后清空旧店铺的搜索结果
+  useEffect(() => {
+    setOptions(preset ? [preset] : []);
+  }, [shopId]);
+
+  return (
+    <Select
+      showSearch
+      filterOption={false}
+      value={value}
+      onChange={onChange}
+      placeholder={shopId ? '输入关键词搜索该店铺商品' : '输入关键词搜索全部店铺商品'}
+      notFoundContent={searching ? '搜索中...' : '输入关键词搜索商品'}
+      options={options}
+      onSearch={(kw) => {
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+        debounceRef.current = setTimeout(() => doSearch(kw.trim()), 300);
+      }}
+      onClear={() => doSearch('')}
+      allowClear
+    />
+  );
+};
+
 /** 场次商品管理（Drawer 内嵌）：商品表格 + 商品表单，随 Drawer destroyOnClose 整体重置 */
 const SessionProducts: React.FC<{ session: API.SeckillSessionItem }> = ({
   session,
 }) => {
   const actionRef = useRef<ActionType>(undefined);
+  const formRef = useRef<any>(undefined);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<API.SeckillProductItem | null>(null);
+  // 编辑回显：已选商品的选项（label 含名称，避免 Select 显示裸 id）
+  const [spuPreset, setSpuPreset] = useState<SpuOption | undefined>(undefined);
+  // 表格商品名反查缓存（spuId → name，防重复请求）
+  const [spuNameMap, setSpuNameMap] = useState<Record<string, string>>({});
+  const nameCacheRef = useRef<Record<string, string>>({});
+
+  // 编辑打开时反查商品名做回显选项
+  useEffect(() => {
+    if (editing?.spuId && modalOpen) {
+      const id = String(editing.spuId);
+      if (nameCacheRef.current[id]) {
+        setSpuPreset({ value: Number(id), label: `${nameCacheRef.current[id]}（ID:${id}）` });
+        return;
+      }
+      getSpuById(Number(id))
+        .then((res: any) => {
+          const name = res.data?.name || res.data?.spu?.name;
+          if (name) {
+            nameCacheRef.current[id] = name;
+            setSpuPreset({ value: Number(id), label: `${name}（ID:${id}）` });
+          } else {
+            setSpuPreset({ value: Number(id), label: `ID:${id}` });
+          }
+        })
+        .catch(() => setSpuPreset({ value: Number(id), label: `ID:${id}` }));
+    } else if (!modalOpen) {
+      setSpuPreset(undefined);
+    }
+  }, [modalOpen, editing]);
 
   const doDelete = async (id: string) => {
     const res = await deleteSeckillProduct(id);
@@ -66,8 +183,35 @@ const SessionProducts: React.FC<{ session: API.SeckillSessionItem }> = ({
     }
   };
 
+  // 列表加载后反查商品名（每页 ≤10 条，命中缓存的跳过）
+  const ensureSpuNames = async (records: API.SeckillProductItem[]) => {
+    const missing = [...new Set(records.map((r) => String(r.spuId)))].filter(
+      (id) => !nameCacheRef.current[id],
+    );
+    if (missing.length === 0) return;
+    await Promise.all(
+      missing.map((id) =>
+        getSpuById(Number(id))
+          .then((res: any) => {
+            const name = res.data?.name || res.data?.spu?.name;
+            if (name) nameCacheRef.current[id] = name;
+          })
+          .catch(() => {}),
+      ),
+    );
+    setSpuNameMap({ ...nameCacheRef.current });
+  };
+
   const columns: ProColumns<API.SeckillProductItem>[] = [
-    { title: 'spuId', dataIndex: 'spuId', width: 150 },
+    {
+      title: '商品',
+      dataIndex: 'spuId',
+      width: 200,
+      render: (_, r) =>
+        spuNameMap[r.spuId]
+          ? `${spuNameMap[r.spuId]}（ID:${r.spuId}）`
+          : `ID:${r.spuId}`,
+    },
     { title: 'skuId', dataIndex: 'skuId', width: 150 },
     {
       title: '秒杀价',
@@ -129,8 +273,10 @@ const SessionProducts: React.FC<{ session: API.SeckillSessionItem }> = ({
             page: params.current,
             pageSize: params.pageSize,
           });
+          const records = res.data?.records || [];
+          ensureSpuNames(records);
           return {
-            data: res.data?.records || [],
+            data: records,
             total: res.data?.total || 0,
             success: res.code === 200,
           };
@@ -140,9 +286,10 @@ const SessionProducts: React.FC<{ session: API.SeckillSessionItem }> = ({
       <ModalForm<ProductFormValues>
         key={editing?.id ?? 'new'}
         title={`${editing ? '编辑' : '新增'}秒杀商品`}
-        width={480}
+        width={520}
         open={modalOpen}
         onOpenChange={setModalOpen}
+        formRef={formRef}
         modalProps={{ destroyOnClose: true }}
         submitter={{
           searchConfig: { submitText: editing ? '保存' : '创建' },
@@ -180,20 +327,72 @@ const SessionProducts: React.FC<{ session: API.SeckillSessionItem }> = ({
           return false;
         }}
       >
-        <ProFormDigit
-          name="spuId"
-          label="商品 spuId"
-          min={1}
-          fieldProps={{ precision: 0 }}
-          rules={[{ required: true, message: '请输入商品 spuId' }]}
+        {/* 店铺筛选（仅辅助商品搜索，不提交） */}
+        <ProFormSelect
+          name="shopFilter"
+          label="店铺（可选，缩小搜索范围）"
+          showSearch
+          allowClear
+          request={async () => {
+            const res = await getShopList({ current: 1, size: 500 });
+            return (res.data?.records || [])
+              .filter((s) => s.status === 0)
+              .map((s) => ({
+                value: Number(s.id),
+                label: `${s.shopName}（ID:${s.id}）`,
+              }));
+          }}
+          fieldProps={{ optionFilterProp: 'label' }}
         />
-        <ProFormDigit
-          name="skuId"
-          label="SKU skuId"
-          min={1}
-          fieldProps={{ precision: 0 }}
-          rules={[{ required: true, message: '请输入 SKU skuId' }]}
-        />
+        {/* 商品远程搜索：依赖店铺筛选值，切换店铺重置选项 */}
+        <ProFormDependency name={['shopFilter']}>
+          {({ shopFilter }) => (
+            <ProForm.Item
+              name="spuId"
+              label="商品"
+              rules={[{ required: true, message: '请搜索并选择商品' }]}
+            >
+              <SpuSearchSelect shopId={shopFilter} preset={spuPreset} />
+            </ProForm.Item>
+          )}
+        </ProFormDependency>
+        {/* SKU 联动：选完商品才可选规格；key 强制随商品重挂载刷新选项 */}
+        <ProFormDependency name={['spuId']}>
+          {({ spuId }) => (
+            <ProFormSelect
+              key={spuId || 'none'}
+              name="skuId"
+              label="SKU（规格）"
+              disabled={!spuId}
+              placeholder={spuId ? '请选择规格' : '请先选择商品'}
+              rules={[{ required: true, message: '请选择 SKU 规格' }]}
+              request={async () => {
+                if (!spuId) return [];
+                const res = await getSkuListBySpu(spuId);
+                return (res.data || []).map((sku) => ({
+                  value: Number(sku.id),
+                  label: `${formatSpec(sku.specData) || sku.skuName || sku.id}（¥${sku.price ?? '-'} 库存${sku.stock ?? 0}）`,
+                  disabled: sku.status !== 1,
+                  skuPrice: sku.price,
+                }));
+              }}
+              fieldProps={{
+                onSelect: (_v: any, option: any) => {
+                  // 选中 SKU 自动带出原价作秒杀价建议（用户未填时）
+                  if (
+                    option?.skuPrice != null &&
+                    !formRef.current?.getFieldValue?.('seckillPrice')
+                  ) {
+                    formRef.current?.setFieldValue?.(
+                      'seckillPrice',
+                      option.skuPrice,
+                    );
+                  }
+                },
+              }}
+            />
+          )}
+        </ProFormDependency>
         <ProFormDigit
           name="seckillPrice"
           label="秒杀价（元）"
