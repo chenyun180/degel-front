@@ -173,7 +173,7 @@ const ShopDashboardPage: React.FC = () => {
               precision={2}
             />
             <div style={{ fontSize: 12, color: '#999', marginTop: 4 }}>
-              优惠券承担（已支付口径，售后不冲减）
+              优惠券承担（已支付口径，退款单已剔除）
             </div>
           </Card>
         </Col>
