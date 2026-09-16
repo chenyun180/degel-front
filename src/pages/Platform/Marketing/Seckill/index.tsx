@@ -22,6 +22,7 @@ import {
   getSpuById,
   getSpuList,
   getShopList,
+  rewarmSeckillSession,
   saveSeckillProduct,
   saveSeckillSession,
   toggleSeckillSessionStatus,
@@ -453,6 +454,15 @@ const PlatformSeckillPage: React.FC = () => {
     }
   };
 
+  const doRewarm = async (id: string) => {
+    const res = await rewarmSeckillSession(id);
+    if (res.code === 200) {
+      message.success('已清除预热数据，约 1 分钟后按最新配置重新预热');
+    } else {
+      message.error(res.msg || '操作失败');
+    }
+  };
+
   const columns: ProColumns<API.SeckillSessionItem>[] = [
     { title: '名称', dataIndex: 'name', ellipsis: true },
     {
@@ -498,7 +508,7 @@ const PlatformSeckillPage: React.FC = () => {
     {
       title: '操作',
       valueType: 'option',
-      width: 200,
+      width: 250,
       render: (_, record) => [
         <a key="products" onClick={() => setProductSession(record)}>
           管理商品
@@ -512,6 +522,17 @@ const PlatformSeckillPage: React.FC = () => {
         >
           编辑
         </a>,
+        // 重新预热：改了场次时间/商品配置后强制按 DB 最新值重建（仅启用且未开始；
+        // 已开场次后端拒绝——重置会把已售量重新放出）
+        record.status === 1 && dayjs(record.startTime).isAfter(dayjs()) ? (
+          <Popconfirm
+            key="rewarm"
+            title="确认重新预热?（清除当前预热数据，约 1 分钟后生效）"
+            onConfirm={() => doRewarm(record.id)}
+          >
+            <a>重新预热</a>
+          </Popconfirm>
+        ) : undefined,
         <Popconfirm
           key="delete"
           title="确认删除该场次?（场次下的秒杀商品将一并失效）"
