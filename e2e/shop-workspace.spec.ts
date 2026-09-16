@@ -92,8 +92,19 @@ test.describe('店铺端回归（shop 账号）', () => {
     await expect(page.getByText('访客排行榜').first()).toBeVisible();
   });
 
-  test('S9 店铺信息显示隔离店铺（测试店铺2）', async ({ page }) => {
+  test('S9 店铺信息显示本店资料（与 mine 接口一致）', async ({ page }) => {
     await page.goto('/shop-workspace/shop-setting/shop-info');
-    await expect(page.locator('#shopName')).toHaveValue('测试店铺2');
+    // 断言本店资料而非硬编码店铺名：期望值取自 /admin/shop/mine（同一登录态），
+    // 既验证页面渲染，也验证资料隔离（显示的是自己店铺的名称）
+    const token = await page.evaluate(() =>
+      localStorage.getItem('degel_access_token'),
+    );
+    const mine = await page.request.get('/admin/shop/mine', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    expect(mine.ok()).toBeTruthy();
+    const expectedName = (await mine.json()).data?.shopName;
+    expect(expectedName).toBeTruthy();
+    await expect(page.locator('#shopName')).toHaveValue(expectedName);
   });
 });
