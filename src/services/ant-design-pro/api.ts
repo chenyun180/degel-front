@@ -301,10 +301,12 @@ export async function confirmAfterSaleReceive(data: { afterSaleId: number }) {
   return request<API.R<void>>('/order/after-sale/confirm-receive', { method: 'PUT', data });
 }
 
-export async function getDashboardOverview() {
-  return request<API.R<API.DashboardOverview>>('/product/dashboard/today-overview', {
-    method: 'GET',
-  });
+// 店铺工作台看板核心指标（GMV/订单数/待发货/待处理售后——订单域，order 服务出数）
+export async function getShopDashboardOverview() {
+  return request<API.R<API.ShopDashboardOverview>>(
+    '/order/shop/dashboard/overview',
+    { method: 'GET' },
+  );
 }
 
 export async function getStockWarningList(params: any) {

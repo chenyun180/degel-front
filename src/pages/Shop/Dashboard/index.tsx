@@ -9,11 +9,16 @@ import { history } from '@umijs/max';
 import { Card, Col, Row, Statistic } from 'antd';
 import React, { useEffect, useState } from 'react';
 import {
-  getDashboardOverview,
   getPendingCounts,
-  getStockWarningList, getShopSubsidySummary } from '@/services/ant-design-pro/api';
+  getShopDashboardOverview,
+  getShopSubsidySummary,
+  getStockWarningList,
+} from '@/services/ant-design-pro/api';
 
-const pendingItems = (counts: API.PendingCounts) => [
+const pendingItems = (
+  counts: API.PendingCounts &
+    Pick<API.ShopDashboardOverview, 'pendingShipment' | 'pendingAfterSale'>,
+) => [
   {
     label: '待发货',
     count: counts.pendingShipment,
@@ -55,8 +60,14 @@ const stockColumns: ProColumns<API.StockWarningVo>[] = [
 ];
 
 const ShopDashboardPage: React.FC = () => {
-  const [overview, setOverview] = useState<API.DashboardOverview | null>(null);
-  const [counts, setCounts] = useState<API.PendingCounts>({
+  const [overview, setOverview] = useState<API.ShopDashboardOverview | null>(
+    null,
+  );
+  // 待办跨两个域：订单域（待发货/待处理售后，随 overview 返回）+ 商品域（库存预警/待审核）
+  const [counts, setCounts] = useState<
+    API.PendingCounts &
+      Pick<API.ShopDashboardOverview, 'pendingShipment' | 'pendingAfterSale'>
+  >({
     pendingShipment: 0,
     pendingAfterSale: 0,
     stockWarningCount: 0,
@@ -64,14 +75,23 @@ const ShopDashboardPage: React.FC = () => {
   });
 
   useEffect(() => {
-    getDashboardOverview()
+    getShopDashboardOverview()
       .then((res) => {
-        if (res.code === 200) setOverview(res.data);
+        if (res.code === 200 && res.data) {
+          setOverview(res.data);
+          setCounts((c) => ({
+            ...c,
+            pendingShipment: res.data.pendingShipment,
+            pendingAfterSale: res.data.pendingAfterSale,
+          }));
+        }
       })
       .catch(() => {});
     getPendingCounts()
       .then((res) => {
-        if (res.code === 200) setCounts(res.data);
+        if (res.code === 200 && res.data) {
+          setCounts((c) => ({ ...c, ...res.data }));
+        }
       })
       .catch(() => {});
   }, []);
@@ -79,11 +99,13 @@ const ShopDashboardPage: React.FC = () => {
   const [subsidy, setSubsidy] = useState<number | null>(null);
 
   useEffect(() => {
-    getShopSubsidySummary().then((res) => {
-      if (res.code === 200 && res.data) {
-        setSubsidy(Number(res.data.monthShopSubsidy));
-      }
-    }).catch(() => {});
+    getShopSubsidySummary()
+      .then((res) => {
+        if (res.code === 200 && res.data) {
+          setSubsidy(Number(res.data.monthShopSubsidy));
+        }
+      })
+      .catch(() => {});
   }, []);
 
   const totalPending =
@@ -112,7 +134,10 @@ const ShopDashboardPage: React.FC = () => {
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="今日订单数" value={overview?.todayOrderCount ?? '--'} />
+            <Statistic
+              title="今日订单数"
+              value={overview?.todayOrderCount ?? '--'}
+            />
             {overview?.yesterdayOrderCount !== undefined && (
               <div style={{ fontSize: 12, color: '#999', marginTop: 4 }}>
                 昨日 {overview.yesterdayOrderCount} 单
@@ -122,17 +147,31 @@ const ShopDashboardPage: React.FC = () => {
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="今日访客数" value={overview?.todayVisitorCount ?? '--'} />
+            <Statistic
+              title="本月 GMV"
+              value={overview?.monthGmv ?? '--'}
+              prefix="¥"
+              precision={2}
+            />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="待处理事项" value={totalPending} valueStyle={{ color: '#ff4d4f' }} />
+            <Statistic
+              title="待处理事项"
+              value={totalPending}
+              valueStyle={{ color: '#ff4d4f' }}
+            />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="本月店铺补贴" value={subsidy ?? '--'} prefix="¥" precision={2} />
+            <Statistic
+              title="本月店铺补贴"
+              value={subsidy ?? '--'}
+              prefix="¥"
+              precision={2}
+            />
             <div style={{ fontSize: 12, color: '#999', marginTop: 4 }}>
               优惠券承担（已支付口径，售后不冲减）
             </div>
@@ -150,7 +189,9 @@ const ShopDashboardPage: React.FC = () => {
                 style={{ textAlign: 'center' }}
               >
                 {item.icon}
-                <div style={{ marginTop: 8, fontSize: 24, fontWeight: 600 }}>{item.count}</div>
+                <div style={{ marginTop: 8, fontSize: 24, fontWeight: 600 }}>
+                  {item.count}
+                </div>
                 <div style={{ color: '#666' }}>{item.label}</div>
               </Card>
             </Col>

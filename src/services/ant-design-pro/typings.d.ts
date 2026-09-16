@@ -258,12 +258,15 @@ declare namespace API {
     createTime?: string;
   };
 
-  type DashboardOverview = {
+  /** 店铺工作台看板核心指标（/order/shop/dashboard/overview，订单域） */
+  type ShopDashboardOverview = {
     todayGmv: number;
     todayOrderCount: number;
-    todayVisitorCount: number;
     yesterdayGmv: number;
     yesterdayOrderCount: number;
+    monthGmv: number;
+    pendingShipment: number;
+    pendingAfterSale: number;
   };
 
   type StockWarningVo = {
@@ -274,9 +277,8 @@ declare namespace API {
     stockWarning: number;
   };
 
+  /** 商品域待办数（/product/dashboard/pending-counts）；订单域待办在 ShopDashboardOverview */
   type PendingCounts = {
-    pendingShipment: number;
-    pendingAfterSale: number;
     stockWarningCount: number;
     pendingAudit: number;
   };
