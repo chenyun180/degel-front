@@ -28,7 +28,6 @@ declare namespace API {
   type LoginResult = {
     access_token?: string;
     token_type?: string;
-    refresh_token?: string;
     expires_in?: number;
     user_id?: number;
     shop_id?: number;
@@ -39,12 +38,6 @@ declare namespace API {
   type LoginParams = {
     username: string;
     password: string;
-  };
-
-  type FakeCaptcha = {
-    code?: number;
-    msg?: string;
-    data?: string;
   };
 
   type R<T> = {

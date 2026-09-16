@@ -1,7 +1,3 @@
-import type { Settings as LayoutSettings } from '@ant-design/pro-components';
-import type { RequestConfig, RunTimeLayoutConfig } from '@umijs/max';
-import { history } from '@umijs/max';
-import React from 'react';
 import {
   AppstoreOutlined,
   AuditOutlined,
@@ -16,6 +12,10 @@ import {
   TeamOutlined,
   UserOutlined,
 } from '@ant-design/icons';
+import type { Settings as LayoutSettings } from '@ant-design/pro-components';
+import type { RequestConfig, RunTimeLayoutConfig } from '@umijs/max';
+import { history } from '@umijs/max';
+import React from 'react';
 import { AvatarDropdown, AvatarName } from '@/components';
 import PageTabs from '@/components/PageTabs';
 import { currentUser as queryCurrentUser } from '@/services/ant-design-pro/api';
@@ -39,6 +39,17 @@ const iconMap: Record<string, React.ReactNode> = {
 
 const loginPath = '/user/login';
 
+/** 踢回登录页并携带当前位置（redirect 会在登录页经 isAllowedRedirect 白名单校验） */
+function redirectToLogin() {
+  const { pathname, search } = history.location;
+  if (pathname === loginPath) {
+    return;
+  }
+  history.push(
+    `${loginPath}?redirect=${encodeURIComponent(pathname + search)}`,
+  );
+}
+
 export async function getInitialState(): Promise<{
   settings?: Partial<LayoutSettings>;
   currentUser?: API.CurrentUser;
@@ -54,7 +65,7 @@ export async function getInitialState(): Promise<{
     } catch (_error) {
       // ignore
     }
-    history.push(loginPath);
+    redirectToLogin();
     return undefined;
   };
 
@@ -62,8 +73,11 @@ export async function getInitialState(): Promise<{
   if (location.pathname !== loginPath) {
     const token = localStorage.getItem('degel_access_token');
     if (!token) {
-      history.push(loginPath);
-      return { fetchUserInfo, settings: defaultSettings as Partial<LayoutSettings> };
+      redirectToLogin();
+      return {
+        fetchUserInfo,
+        settings: defaultSettings as Partial<LayoutSettings>,
+      };
     }
     const currentUser = await fetchUserInfo();
     return {
@@ -106,10 +120,11 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
     onPageChange: () => {
       const { location } = history;
       if (!initialState?.currentUser && location.pathname !== loginPath) {
-        history.push(loginPath);
+        redirectToLogin();
       }
     },
-    menuDataRender: routers.length > 0 ? () => routersToMenuData(routers) : undefined,
+    menuDataRender:
+      routers.length > 0 ? () => routersToMenuData(routers) : undefined,
     menuHeaderRender: undefined,
     childrenRender: (children) => {
       return (

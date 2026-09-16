@@ -2,6 +2,11 @@ import { request } from '@umijs/max';
 
 const TOKEN_KEY = 'degel_access_token';
 
+// OAuth2 公共客户端凭据：构建期注入（UMI_APP_ 前缀 umi 会内联进 bundle），
+// 默认值仅供本地开发。写死在源码里=永久公开，生产换凭据时前端不需要改代码
+const OAUTH_CLIENT_ID = process.env.UMI_APP_OAUTH_CLIENT_ID || 'degel';
+const OAUTH_CLIENT_SECRET = process.env.UMI_APP_OAUTH_CLIENT_SECRET || 'degel_secret';
+
 export function getToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
 }
@@ -17,8 +22,8 @@ export function removeToken() {
 export async function login(params: API.LoginParams) {
   const formData = new URLSearchParams();
   formData.append('grant_type', 'password');
-  formData.append('client_id', 'degel');
-  formData.append('client_secret', 'degel_secret');
+  formData.append('client_id', OAUTH_CLIENT_ID);
+  formData.append('client_secret', OAUTH_CLIENT_SECRET);
   formData.append('username', params.username);
   formData.append('password', params.password);
 
@@ -39,8 +44,10 @@ export async function outLogin() {
         headers: { Authorization: `Bearer ${token}` },
         skipErrorHandler: true,
       });
-    } catch (_) {
-      // ignore
+    } catch (error) {
+      // 服务端登出失败（网络/Redis 故障等）：token 可能未进黑名单、有效期内仍可用。
+      // 本地照常清除让用户进入登出态，但留 console 痕迹便于排查"注销未生效"
+      console.warn('[outLogin] 服务端登出失败，token 可能未被吊销：', error);
     }
   }
   removeToken();
@@ -469,6 +476,14 @@ export async function deleteSeckillSession(id: string) {
 export async function toggleSeckillSessionStatus(id: string) {
   return request<API.R<null>>(
     `/marketing/platform/seckill/session/toggle-status/${id}`,
+    { method: 'PUT' },
+  );
+}
+
+/** 重新预热：清除 Redis 预热数据，约 1 分钟后按 DB 最新配置重建（仅启用且未开场次允许） */
+export async function rewarmSeckillSession(id: string) {
+  return request<API.R<null>>(
+    `/marketing/platform/seckill/session/rewarm/${id}`,
     { method: 'PUT' },
   );
 }

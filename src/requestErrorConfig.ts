@@ -4,6 +4,19 @@ import { history } from '@umijs/max';
 import { message } from 'antd';
 import { getToken } from '@/services/ant-design-pro/api';
 
+const LOGIN_PATH = '/user/login';
+
+/** 踢回登录页并携带当前位置（登录页有 isAllowedRedirect 白名单校验，会话过期重登后能回到原页面） */
+function redirectToLogin() {
+  const { pathname, search } = history.location;
+  if (pathname === LOGIN_PATH) {
+    return;
+  }
+  history.push(
+    `${LOGIN_PATH}?redirect=${encodeURIComponent(pathname + search)}`,
+  );
+}
+
 export const errorConfig: RequestConfig = {
   errorConfig: {
     errorThrower: (res) => {
@@ -22,9 +35,7 @@ export const errorConfig: RequestConfig = {
       } else if (error.response) {
         if (error.response.status === 401) {
           localStorage.removeItem('degel_access_token');
-          if (window.location.pathname !== '/user/login') {
-            history.push('/user/login');
-          }
+          redirectToLogin();
           return;
         }
         message.error(`请求错误：${error.response.status}`);
@@ -38,15 +49,12 @@ export const errorConfig: RequestConfig = {
   requestInterceptors: [
     (config: RequestOptions) => {
       const token = getToken();
-      if (token && config.headers) {
+      if (token) {
+        // headers 可能未初始化，先兜底再写入，否则 Authorization 会静默丢失
+        config.headers = config.headers || {};
         config.headers.Authorization = `Bearer ${token}`;
       }
       return config;
-    },
-  ],
-  responseInterceptors: [
-    (response) => {
-      return response;
     },
   ],
 };
