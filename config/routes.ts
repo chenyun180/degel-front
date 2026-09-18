@@ -14,7 +14,11 @@ export default [
     path: '/platform',
     access: 'canAdmin',
     routes: [
-      { path: '/platform/dashboard', name: '数据看板', component: './Platform/Dashboard' },
+      {
+        path: '/platform/dashboard',
+        name: '数据看板',
+        component: './Platform/Dashboard',
+      },
     ],
   },
   {
@@ -24,19 +28,77 @@ export default [
     access: 'canAdmin',
     routes: [
       { path: '/system', redirect: '/system/user' },
-      { path: '/system/user', name: '用户管理', icon: 'user', component: './System/User', access: 'canAdmin' },
-      { path: '/system/role', name: '角色管理', icon: 'team', component: './System/Role', access: 'canAdmin' },
-      { path: '/system/menu', name: '菜单管理', icon: 'menu', component: './System/Menu', access: 'canAdmin' },
-      { path: '/system/shop', name: '店铺管理', icon: 'shop', component: './System/Shop', access: 'canAdmin' },
+      {
+        path: '/system/user',
+        name: '用户管理',
+        icon: 'user',
+        component: './System/User',
+        access: 'canAdmin',
+      },
+      {
+        path: '/system/role',
+        name: '角色管理',
+        icon: 'team',
+        component: './System/Role',
+        access: 'canAdmin',
+      },
+      {
+        path: '/system/menu',
+        name: '菜单管理',
+        icon: 'menu',
+        component: './System/Menu',
+        access: 'canAdmin',
+      },
+      {
+        path: '/system/shop',
+        name: '店铺管理',
+        icon: 'shop',
+        component: './System/Shop',
+        access: 'canAdmin',
+      },
     ],
   },
   {
     path: '/platform-marketing',
     access: 'canAdmin',
     routes: [
-      { path: '/platform-marketing/coupon', name: '优惠券管理', component: './Platform/Marketing/Coupon' },
-      { path: '/platform-marketing/banner', name: '轮播图管理', component: './Platform/Marketing/Banner' },
-      { path: '/platform-marketing/seckill', name: '秒杀场次管理', component: './Platform/Marketing/Seckill' },
+      {
+        path: '/platform-marketing/coupon',
+        name: '优惠券管理',
+        component: './Platform/Marketing/Coupon',
+      },
+      {
+        path: '/platform-marketing/banner',
+        name: '轮播图管理',
+        component: './Platform/Marketing/Banner',
+      },
+      {
+        path: '/platform-marketing/seckill',
+        name: '秒杀场次管理',
+        component: './Platform/Marketing/Seckill',
+      },
+    ],
+  },
+  {
+    path: '/platform-settlement',
+    name: '结算管理',
+    access: 'canAdmin',
+    routes: [
+      {
+        path: '/platform-settlement/overview',
+        name: '资金总览',
+        component: './Platform/Settlement/Overview',
+      },
+      {
+        path: '/platform-settlement/withdraw',
+        name: '提现审核',
+        component: './Platform/Settlement/Withdraw',
+      },
+      {
+        path: '/platform-settlement/config',
+        name: '佣金配置',
+        component: './Platform/Settlement/Config',
+      },
     ],
   },
   {
@@ -67,7 +129,10 @@ export default [
             path: '/shop-workspace/shop-product-dir/shop-product-create',
             component: './Shop/Product/Create',
           },
-          { path: '/shop-workspace/shop-product-dir/shop-category', component: './Shop/Category' },
+          {
+            path: '/shop-workspace/shop-product-dir/shop-category',
+            component: './Shop/Category',
+          },
         ],
       },
       {
@@ -81,7 +146,10 @@ export default [
             path: '/shop-workspace/shop-order-dir/shop-order-ship',
             component: './Shop/Order/Ship',
           },
-          { path: '/shop-workspace/shop-order-dir/shop-aftersale', component: './Shop/AfterSale' },
+          {
+            path: '/shop-workspace/shop-order-dir/shop-aftersale',
+            component: './Shop/AfterSale',
+          },
         ],
       },
       {
@@ -106,10 +174,18 @@ export default [
           },
         ],
       },
+      // 与 sys_menu 160 对应（DB：店铺工作台 id=24 直挂 path=shop-settlement-account）
+      {
+        path: '/shop-workspace/shop-settlement-account',
+        component: './Shop/Settlement/Account',
+      },
       {
         path: '/shop-workspace/shop-setting',
         routes: [
-          { path: '/shop-workspace/shop-setting/shop-info', component: './Shop/Info' },
+          {
+            path: '/shop-workspace/shop-setting/shop-info',
+            component: './Shop/Info',
+          },
         ],
       },
     ],

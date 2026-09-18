@@ -465,4 +465,72 @@ declare namespace API {
     perLimit: number;
     sort: number;
   };
+
+  type ShopSettlementAccount = {
+    shopId: number;
+    /** 可提现余额（结算后退款扣回不足时可为负） */
+    balance: number;
+    totalSettled: number;
+    totalWithdrawn: number;
+  };
+
+  type SettlementOrder = {
+    id: number;
+    orderId: number;
+    orderNo: string;
+    shopId: number;
+    /** 用户实付 */
+    payAmount: number;
+    platformSubsidy: number;
+    pointsDeduct: number;
+    /** 结算基数（毛收入） */
+    grossAmount: number;
+    commissionRate: number;
+    commissionAmount: number;
+    netAmount: number;
+    /** 0=待入账 1=已入账 2=已扣回 */
+    status: number;
+    settleTime?: string;
+    deductTime?: string;
+    createTime: string;
+  };
+
+  type SettlementWithdraw = {
+    id: number;
+    withdrawNo: string;
+    shopId: number;
+    amount: number;
+    /** 0=待审核 1=已通过(已打款) 2=已驳回 */
+    status: number;
+    applyRemark?: string;
+    auditRemark?: string;
+    auditBy?: string;
+    auditTime?: string;
+    payTime?: string;
+    createTime: string;
+  };
+
+  type SettlementConfig = {
+    /** 全局佣金比例（%），0~100 */
+    commissionRate: number;
+    /** 售后窗口（天）：确认收货后 N 天内可申请售后 */
+    aftersaleDays: number;
+  };
+
+  type SettlementOverview = {
+    /** 累计佣金收入 */
+    commissionIncome: number;
+    /** 累计平台承担补贴支出（平台券+积分抵扣） */
+    subsidyPaid: number;
+    /** 累计提现打款 */
+    withdrawPaid: number;
+    /** 商家欠款（负余额合计，正数展示） */
+    shopDebt: number;
+    /** 平台对商家负债合计 */
+    shopBalanceTotal: number;
+    /** 用户支付净额（支付-退款） */
+    userPayNet: number;
+    /** 平台净现金流 = 用户支付净额 − 商家余额合计 */
+    netCashFlow: number;
+  };
 }

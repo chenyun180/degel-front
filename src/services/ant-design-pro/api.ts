@@ -516,3 +516,59 @@ export async function deleteSeckillProduct(id: string) {
     method: 'DELETE',
   });
 }
+
+// ==================== 店铺分账清结算 ====================
+
+export async function getShopSettlementAccount() {
+  return request<API.R<API.ShopSettlementAccount>>('/order/shop/settlement/account', { method: 'GET' });
+}
+
+export async function pageShopSettlementDetail(params: any) {
+  return request<API.R<API.PageResult<API.SettlementOrder>>>('/order/shop/settlement/detail/page', {
+    method: 'GET',
+    params,
+  });
+}
+
+export async function pageShopSettlementWithdraw(params: any) {
+  return request<API.R<API.PageResult<API.SettlementWithdraw>>>('/order/shop/settlement/withdraw/page', {
+    method: 'GET',
+    params,
+  });
+}
+
+export async function applyShopWithdraw(data: { amount: number; applyRemark?: string }) {
+  return request<API.R<void>>('/order/shop/settlement/withdraw', { method: 'POST', data });
+}
+
+export async function pagePlatformWithdraw(params: any) {
+  return request<API.R<API.PageResult<API.SettlementWithdraw>>>('/order/platform/settlement/withdraw/page', {
+    method: 'GET',
+    params,
+  });
+}
+
+export async function auditPlatformWithdraw(data: {
+  withdrawId: number;
+  approve: boolean;
+  auditRemark?: string;
+}) {
+  return request<API.R<void>>('/order/platform/settlement/withdraw/audit', { method: 'PUT', data });
+}
+
+export async function getSettlementConfig() {
+  return request<API.R<API.SettlementConfig>>('/order/platform/settlement/config', { method: 'GET' });
+}
+
+export async function updateSettlementConfig(data: {
+  commissionRate?: number;
+  aftersaleDays?: number;
+}) {
+  return request<API.R<void>>('/order/platform/settlement/config', { method: 'PUT', data });
+}
+
+export async function getSettlementOverview() {
+  return request<API.R<API.SettlementOverview>>('/order/platform/settlement/overview', {
+    method: 'GET',
+  });
+}
