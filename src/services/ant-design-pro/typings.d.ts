@@ -533,4 +533,35 @@ declare namespace API {
     /** 平台净现金流 = 用户支付净额 − 商家余额合计 */
     netCashFlow: number;
   };
+
+  type AfterSaleArbitration = {
+    id: number;
+    orderId: number;
+    orderNo: string;
+    userId: number;
+    shopId: number;
+    /** 1=仅退款 2=退货退款 */
+    type: number;
+    /** 0待商家处理 1待买家退货 2待商家收货 3退款完成 5已拒绝 6平台介入中 7仲裁维持拒绝 */
+    status: number;
+    reason: string;
+    refundAmount: number;
+    merchantRemark?: string;
+    platformRemark?: string;
+    createTime: string;
+    updateTime: string;
+  };
+
+  type UnsalableVo = {
+    skuId: number;
+    spuId: number;
+    spuName: string;
+    skuCode: string;
+    specData: string;
+    stock: number;
+    price: number;
+    /** 占压金额 = stock × price */
+    occupyAmount: number;
+    saleCount: number;
+  };
 }

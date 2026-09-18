@@ -102,6 +102,18 @@ export default [
     ],
   },
   {
+    path: '/platform-aftersale',
+    name: '售后仲裁',
+    access: 'canAdmin',
+    routes: [
+      {
+        path: '/platform-aftersale/arbitration',
+        name: '仲裁列表',
+        component: './Platform/AfterSale/Arbitration',
+      },
+    ],
+  },
+  {
     path: '/platform-product',
     access: 'canAdmin',
     routes: [
@@ -162,6 +174,10 @@ export default [
           {
             path: '/shop-workspace/shop-stats-dir/shop-stats-visitor',
             component: './Shop/Stats/Visitor',
+          },
+          {
+            path: '/shop-workspace/shop-stats-dir/shop-stats-unsalable',
+            component: './Shop/Stats/Unsalable',
           },
         ],
       },

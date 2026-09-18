@@ -44,7 +44,7 @@ const ShopOrderShipPage: React.FC = () => {
       const url = window.URL.createObjectURL(blob as Blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `配货单_${new Date().toLocaleDateString()}.xlsx`;
+      a.download = `配货单_${new Date().toLocaleDateString()}.csv`;
       a.click();
       window.URL.revokeObjectURL(url);
     } catch {

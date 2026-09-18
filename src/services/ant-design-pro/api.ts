@@ -572,3 +572,29 @@ export async function getSettlementOverview() {
     method: 'GET',
   });
 }
+
+// ==================== 平台售后仲裁 ====================
+
+export async function pageArbitrations(params: any) {
+  return request<API.R<API.PageResult<API.AfterSaleArbitration>>>('/order/platform/aftersale/page', {
+    method: 'GET',
+    params,
+  });
+}
+
+export async function arbitrateAfterSale(data: {
+  afterSaleId: number;
+  supportUser: boolean;
+  remark: string;
+}) {
+  return request<API.R<void>>('/order/platform/aftersale/arbitrate', { method: 'PUT', data });
+}
+
+// ==================== 滞销预警 ====================
+
+export async function getUnsalableList(limit = 50) {
+  return request<API.R<API.UnsalableVo[]>>('/product/dashboard/unsalable', {
+    method: 'GET',
+    params: { limit },
+  });
+}

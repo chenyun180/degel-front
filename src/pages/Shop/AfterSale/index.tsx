@@ -1,6 +1,10 @@
-import { type ActionType, type ProColumns, ProTable } from '@ant-design/pro-components';
+import {
+  type ActionType,
+  type ProColumns,
+  ProTable,
+} from '@ant-design/pro-components';
 import { useModel } from '@umijs/max';
-import { Form, Input, message, Modal, Popconfirm, Tag } from 'antd';
+import { Form, Input, Modal, message, Popconfirm, Tag } from 'antd';
 import React, { useRef, useState } from 'react';
 import {
   confirmAfterSaleReceive,
@@ -13,13 +17,15 @@ const typeMap: Record<number, string> = {
   2: '退货退款',
 };
 
+/** 状态语义与 degel-order 状态机对齐（2026-09-18 修正：原映射是早期草稿，从未对齐后端） */
 const statusMap: Record<number, { text: string; color: string }> = {
-  0: { text: '待处理', color: 'warning' },
-  1: { text: '已同意', color: 'processing' },
-  2: { text: '已拒绝', color: 'error' },
-  3: { text: '待收货', color: 'blue' },
-  4: { text: '已完成', color: 'success' },
-  5: { text: '已取消', color: 'default' },
+  0: { text: '待商家处理', color: 'warning' },
+  1: { text: '待买家退货', color: 'processing' },
+  2: { text: '待商家收货', color: 'blue' },
+  3: { text: '退款完成', color: 'success' },
+  5: { text: '已拒绝', color: 'error' },
+  6: { text: '平台介入中', color: 'purple' },
+  7: { text: '仲裁维持拒绝', color: 'default' },
 };
 
 const ShopAfterSalePage: React.FC = () => {
@@ -76,18 +82,32 @@ const ShopAfterSalePage: React.FC = () => {
       dataIndex: 'refundAmount',
       search: false,
       width: 100,
-      render: (v) => (v !== undefined && v !== null ? `¥${(v as number).toFixed(2)}` : '-'),
+      render: (v) =>
+        v !== undefined && v !== null ? `¥${(v as number).toFixed(2)}` : '-',
     },
     { title: '原因', dataIndex: 'reason', search: false, ellipsis: true },
-    { title: '商家备注', dataIndex: 'merchantRemark', search: false, ellipsis: true },
-    { title: '创建时间', dataIndex: 'createTime', search: false, valueType: 'dateTime' },
+    {
+      title: '商家备注',
+      dataIndex: 'merchantRemark',
+      search: false,
+      ellipsis: true,
+    },
+    {
+      title: '创建时间',
+      dataIndex: 'createTime',
+      search: false,
+      valueType: 'dateTime',
+    },
     {
       title: '操作',
       valueType: 'option',
       render: (_, record) =>
         [
           record.status === 0 && (
-            <a key="agree" onClick={() => openRemarkModal(record.id as number, 'agree')}>
+            <a
+              key="agree"
+              onClick={() => openRemarkModal(record.id as number, 'agree')}
+            >
               同意
             </a>
           ),
@@ -100,13 +120,15 @@ const ShopAfterSalePage: React.FC = () => {
               拒绝
             </a>
           ),
-          record.status === 3 && (
+          record.status === 2 && (
             <Popconfirm
               key="confirm"
               title="确认已收到退回商品?"
               onConfirm={async () => {
-                await confirmAfterSaleReceive({ afterSaleId: record.id as number });
-                message.success('已确认收货');
+                await confirmAfterSaleReceive({
+                  afterSaleId: record.id as number,
+                });
+                message.success('已确认收货，退款已执行');
                 actionRef.current?.reload();
               }}
             >
