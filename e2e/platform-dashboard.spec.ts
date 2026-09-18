@@ -9,6 +9,11 @@ test.describe('平台工作台（admin 数据看板）', () => {
   test('admin 登录后默认落在数据看板，卡片/榜单/折线图渲染', async ({
     page,
   }) => {
+    // 先注册响应监听再登录，避免 overview 响应在监听前完成的竞态
+    const overviewResponse = page.waitForResponse((res) =>
+      res.url().includes('/order/platform/dashboard/overview'),
+    );
+
     await login(page, ADMIN);
 
     // 登录默认页 = 菜单首项（/platform/dashboard）
@@ -17,9 +22,14 @@ test.describe('平台工作台（admin 数据看板）', () => {
     // 左侧菜单出现「平台工作台」
     await expect(page.getByText('平台工作台').first()).toBeVisible();
 
-    // 卡片：累计总流水显示造数基准值
+    // 卡片：累计总流水 = 接口实时值（写死基准值会随测试造数漂移，曾断 3391.50 失败）
     await expect(page.getByText('累计总流水')).toBeVisible();
-    await expect(page.getByText('3,391.50').first()).toBeVisible({
+    const overview = (await (await overviewResponse).json()).data;
+    const expectedGmv = new Intl.NumberFormat('zh-CN', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Number(overview.totalGmv));
+    await expect(page.getByText(expectedGmv).first()).toBeVisible({
       timeout: 10_000,
     });
 
