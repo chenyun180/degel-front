@@ -517,6 +517,16 @@ declare namespace API {
     aftersaleDays: number;
   };
 
+  type SearchWordStat = {
+    keyword: string;
+    searchCount: number;
+    /** 去重搜索人数（匿名不计入） */
+    userCount: number;
+    /** 空结果次数（搜了没货） */
+    zeroResultCount: number;
+    lastSearchTime: string;
+  };
+
   type SettlementOverview = {
     /** 累计佣金收入 */
     commissionIncome: number;

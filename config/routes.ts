@@ -114,6 +114,18 @@ export default [
     ],
   },
   {
+    path: '/platform-stats',
+    name: '数据分析',
+    access: 'canAdmin',
+    routes: [
+      {
+        path: '/platform-stats/search-words',
+        name: '搜索词分析',
+        component: './Platform/Stats/SearchWords',
+      },
+    ],
+  },
+  {
     path: '/platform-product',
     access: 'canAdmin',
     routes: [

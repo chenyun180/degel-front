@@ -556,6 +556,13 @@ export async function auditPlatformWithdraw(data: {
   return request<API.R<void>>('/order/platform/settlement/withdraw/audit', { method: 'PUT', data });
 }
 
+export async function getSearchWordStats(params: { days: number }) {
+  return request<API.R<API.SearchWordStat[]>>('/product/platform/search/stats', {
+    method: 'GET',
+    params,
+  });
+}
+
 export async function getSettlementConfig() {
   return request<API.R<API.SettlementConfig>>('/order/platform/settlement/config', { method: 'GET' });
 }
