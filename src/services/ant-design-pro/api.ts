@@ -2,10 +2,12 @@ import { request } from '@umijs/max';
 
 const TOKEN_KEY = 'degel_access_token';
 
-// OAuth2 公共客户端凭据：构建期注入（UMI_APP_ 前缀 umi 会内联进 bundle），
-// 默认值仅供本地开发。写死在源码里=永久公开，生产换凭据时前端不需要改代码
+// OAuth2 公共客户端凭据：构建期注入（UMI_APP_ 前缀 umi 会内联进 bundle）。
+// client_id 非机密可留兜底；client_secret 禁止源码兜底（H3 修复：原兜底值 'degel_secret'
+// 恰好等于后端默认密钥，构成完整爆破链）。本地开发值在 .env.local（gitignored），
+// 模板见 .env.example；缺失时登录会直接失败，属预期行为
 const OAUTH_CLIENT_ID = process.env.UMI_APP_OAUTH_CLIENT_ID || 'degel';
-const OAUTH_CLIENT_SECRET = process.env.UMI_APP_OAUTH_CLIENT_SECRET || 'degel_secret';
+const OAUTH_CLIENT_SECRET = process.env.UMI_APP_OAUTH_CLIENT_SECRET || '';
 
 export function getToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
