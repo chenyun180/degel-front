@@ -256,8 +256,43 @@ export async function getMyShop() {
   return request<API.R<API.SysShop>>('/admin/shop/mine', { method: 'GET' });
 }
 
-export async function updateMyShop(data: Partial<API.SysShop>) {
-  return request<API.R<void>>('/admin/shop/mine', { method: 'PUT', data });
+// ==================== 店铺资料变更审批（Flowable 流程 shopChange） ====================
+
+/** 店铺提交资料变更申请（不再直接生效，审批通过后回写） */
+export async function submitShopChange(data: API.ShopProfile) {
+  return request<API.R<API.SysShopChange>>('/admin/shop/mine/change', { method: 'POST', data });
+}
+
+/** 本店最近一条变更申请，无则 data=null */
+export async function getLatestShopChange() {
+  return request<API.R<API.SysShopChange | null>>('/admin/shop/mine/change/latest', {
+    method: 'GET',
+  });
+}
+
+export async function withdrawShopChange(id: number) {
+  return request<API.R<void>>(`/admin/shop/mine/change/${id}/withdraw`, { method: 'PUT' });
+}
+
+/** 本店申请的审批进度图 */
+export async function getMyShopChangeDiagram(id: number) {
+  return request<API.R<API.FlowDiagram>>(`/admin/shop/mine/change/${id}/diagram`, { method: 'GET' });
+}
+
+/** 平台查看任一申请的审批进度图 */
+export async function getShopChangeDiagram(id: number) {
+  return request<API.R<API.FlowDiagram>>(`/admin/shop/change/${id}/diagram`, { method: 'GET' });
+}
+
+export async function pageShopChanges(params: any) {
+  return request<API.R<API.PageResult<API.SysShopChange>>>('/admin/shop/change/page', {
+    method: 'GET',
+    params,
+  });
+}
+
+export async function auditShopChange(id: number, data: { approved: boolean; remark?: string }) {
+  return request<API.R<void>>(`/admin/shop/change/${id}/audit`, { method: 'PUT', data });
 }
 
 export async function getOrderList(params: any) {

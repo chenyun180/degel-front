@@ -56,6 +56,13 @@ export default [
         component: './System/Shop',
         access: 'canAdmin',
       },
+      {
+        path: '/system/shop-change',
+        name: '资料审批',
+        icon: 'audit',
+        component: './System/ShopChange',
+        access: 'canAdmin',
+      },
     ],
   },
   {

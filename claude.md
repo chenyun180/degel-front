@@ -60,6 +60,11 @@ degel-front/
 - `useExhaustiveDependencies`: 关闭
 - `src/services/` 目录被 Biome 忽略（自动生成代码）
 
+## 公共组件补充
+
+- `src/components/FlowDiagram`：工作流进度图（bpmn-js 只读 + 已完成/当前/终止高亮 + 条件标注 + 时间线），传 `load` 拉 `API.FlowDiagram`；只在挂载时加载，切换数据用 `key` 重挂载
+- ⚠️ 新装 npm 依赖后 utoopack dev server 不会识别（报 `Cannot find module`），必须重启前端
+
 ## API 代理
 
 开发环境所有 API 请求通过代理转发到网关（localhost:9999）：

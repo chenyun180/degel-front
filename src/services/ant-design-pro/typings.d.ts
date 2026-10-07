@@ -108,6 +108,56 @@ declare namespace API {
     createTime?: string;
   };
 
+  /** 店铺可自助变更、需平台审批的资料字段（sys_shop_change 前后快照结构） */
+  type ShopProfile = {
+    shopName?: string;
+    logo?: string;
+    announcement?: string;
+    description?: string;
+    contactName?: string;
+    contactPhone?: string;
+  };
+
+  /** 流程进度图（后端 FlowDiagramService），bpmn-js 渲染 + 高亮 */
+  type FlowDiagram = {
+    processInstanceId: string;
+    processName?: string;
+    bpmnXml: string;
+    /** running 进行中 / completed 正常结束 / terminated 被终止（如撤回） */
+    state: 'running' | 'completed' | 'terminated';
+    deleteReason?: string;
+    completedActivityIds: string[];
+    activeActivityIds: string[];
+    completedFlowIds: string[];
+    steps: {
+      activityId: string;
+      activityName?: string;
+      activityType: string;
+      assigneeName?: string;
+      startTime?: string;
+      endTime?: string;
+      deleteReason?: string;
+    }[];
+  };
+
+  /** 店铺资料变更申请；status 0待审核 1已通过 2已驳回 3已撤回 */
+  type SysShopChange = {
+    id: number;
+    shopId: number;
+    shopName?: string;
+    /** ShopProfile JSON */
+    beforeData?: string;
+    /** ShopProfile JSON */
+    afterData?: string;
+    status: number;
+    processInstanceId?: string;
+    applyUserId?: number;
+    auditUserId?: number;
+    auditRemark?: string;
+    auditTime?: string;
+    createTime?: string;
+  };
+
   type ProductSpu = {
     id?: number;
     shopId?: number;
